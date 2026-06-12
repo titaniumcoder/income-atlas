@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - '*'
 
 permissions:
   contents: write
@@ -27,9 +27,6 @@ jobs:
       
       - name: Build binary
         run: make build
-      
-      - name: List artifacts
-        run: ls -la bin/
       
       - name: Create Release
         uses: softprops/action-gh-release@v2
