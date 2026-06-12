@@ -8,20 +8,37 @@ To create a simple, powerful web application that provides comprehensive financi
 ## 🛠️ Technology Stack
 *   **Backend:** Go
 *   **Frontend:** Pure HTML + CSS / JavaScript (with heavy reliance on HTMX for inter-component communication)
-*   **Database:** None (Local files or in-memory state preferred, keeping the structure minimal).
+*   **Database:** None (File-based configuration with JSON Schema validation)
+
+## 📁 Project Structure
+```
+income-atlas/
+├── config/           # Configuration files (JSON)
+├── schema/           # JSON Schema definitions
+├── web/
+│   ├── templates/    # HTML templates
+│   └── static/       # Static assets (CSS, JS)
+├── data/             # User data (later)
+├── main.go           # Application entry point
+├── server.go         # HTTP server and routes
+├── embed.go          # Go embed directives
+└── generated.go      # Auto-generated code from JSON schema
+```
 
 ## 🧩 Core Features Planned
 1.  Income Tracking and Prediction: Inputting data to predict future financial standing.
 2.  Global Comparison Tool: Comparing countries based on tax burdens/social contributions and living standards.
 
 ## ⚙️ Development Setup
-Key development tools include `air` for hot-reloading during development, ensuring the server restarts automatically when global settings change. Client-side validation relies heavily on JSON Schema.
+Key development tools include `air` for hot-reloading during development, ensuring the server restarts automatically when files change (configured in `.air.toml`).
 
 ### Getting Started
 1.  Clone the repository.
-2.  Run the local development command (TBD).
-3.  Manage global settings via the `settings/` directory, ensuring schema validation is utilized.
+2.  Install dependencies: `go mod tidy`
+3.  Run the server: `make run` or `air`
+
+### VSCode Integration
+The project includes `.vscode/settings.json` to link JSON schema definitions with config files for validation and autocomplete.
 
 ## 🗺️ Future State
 *   **Live Demo:** https://income-atlas.fly.dev
-*   The project structure prioritizes simplicity: a single startup command and small helper utilities for tasks like generating session secrets or passwords.

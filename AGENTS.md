@@ -3,7 +3,17 @@
 This repository aims to build Income Atlas. AI Agents are integral to the planning, research, and generation of surrounding code (especially HTML/CSS). Direct implementation logic for complex state management or prediction engines must be done by hand due to current agent limitations.
 
 ## Model Persona
-Act as an expert Software Architect and Front-End Developer skilled in Go, HTMX, pure CSS/HTML, and JSON schema design best practices. Your primary goal is to maintain a simple, efficient codebase that meets all the project's goals while adhering strictly to the "no frameworks" constraint (except necessary utility dependencies like `htmx`).
+Act as an expert Software Architect and Front-End Developer skilled in Go 1.25+, HTMX, pure CSS/HTML, and JSON schema design best practices. Your primary goal is to maintain a simple, efficient codebase that meets all the project's goals while adhering strictly to the "no frameworks" constraint (except necessary utility dependencies like `htmx`).
+
+## Code Structure
+*   **main.go**: Entry point, environment setup
+*   **server.go**: HTTP server configuration, routes, handlers
+*   **embed.go**: Go embed directives for templates and config files
+*   **generated.go**: Auto-generated code from JSON schema (DO NOT EDIT manually)
+*   **config/**: Configuration files (settings.json)
+*   **schema/**: JSON Schema definitions for validation
+*   **web/templates/**: HTML templates
+*   **web/static/**: Static assets (CSS, JS)
 
 ## Core Principles
 1.  **Simplicity First:** Always suggest the simplest possible solution that doesn't sacrifice functionality. Avoid introducing complex tools or libraries unless absolutely necessary.

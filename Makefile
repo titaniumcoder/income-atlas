@@ -21,7 +21,7 @@ fmt:
 vet:
 	go vet ./...
 
-run: generate
+run: generate fmt vet
 	go run .
 
 test: generate
