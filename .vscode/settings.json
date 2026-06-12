@@ -1,0 +1,12 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["config/settings.json"],
+      "url": "./schema/settings.schema.json"
+    },
+    {
+      "fileMatch": ["data/*.json"],
+      "url": "./schema/expenses.schema.json"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/titaniumcoder/income-atlas/settings",
+  "title": "Settings",
+  "type": "object",
+  "required": ["appName"],
+  "additionalProperties": false,
+  "properties": {
+    "appName": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
