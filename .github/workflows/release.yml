@@ -10,7 +10,23 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            GOOS: linux
+            GOARCH: amd64
+            EXT: ""
+          - os: macos-latest
+            GOOS: darwin
+            GOARCH: amd64
+            EXT: ""
+          - os: windows-latest
+            GOOS: windows
+            GOARCH: amd64
+            EXT: ".exe"
     steps:
       - uses: actions/checkout@v4
       
@@ -26,10 +42,14 @@ jobs:
         run: make generate
       
       - name: Build binary
-        run: make build
-      
-      - name: Create Release
+        env:
+          GOOS: ${{ matrix.GOOS }}
+          GOARCH: ${{ matrix.GOARCH }}
+        run: |
+          go build -ldflags="-s -w" -o "bin/income-atlas-${{ matrix.GOOS }}-${{ matrix.GOARCH }}${{ matrix.EXT }}" .
+
+      - name: Upload release asset
         uses: softprops/action-gh-release@v2
         with:
-          files: bin/income-atlas
+          files: bin/income-atlas-${{ matrix.GOOS }}-${{ matrix.GOARCH }}${{ matrix.EXT }}
           draft: false
