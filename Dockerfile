@@ -2,13 +2,15 @@ ARG GO_VERSION=1
 FROM golang:${GO_VERSION}-bookworm as builder
 
 WORKDIR /usr/src/app
-COPY go.mod go.sum ./
+COPY go.mod go.sum Makefile ./
+RUN make install-generate
 RUN go mod download && go mod verify
-COPY . .
-RUN go build -v -o /run-app .
 
+COPY . .
+
+RUN make build-docker
 
 FROM debian:bookworm
 
-COPY --from=builder /run-app /usr/local/bin/
-CMD ["run-app"]
+COPY --from=builder /income-atlas /usr/local/bin/
+CMD ["income-atlas"]

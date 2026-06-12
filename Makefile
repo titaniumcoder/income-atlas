@@ -6,6 +6,9 @@ build: generate fmt vet
 build-dev: generate fmt vet
 	go build -o tmp/main .
 
+build-docker: generate fmt vet
+	go build -v -o /income-atlas .
+
 install-generate:
 	go install github.com/atombender/go-jsonschema@latest
 
