@@ -28,4 +28,4 @@ test: generate
 	go test ./...
 
 clean:
-	rm -rf bin
+	rm -rf bin tmp
