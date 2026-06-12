@@ -9,24 +9,8 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        include:
-          - os: ubuntu-latest
-            GOOS: linux
-            GOARCH: amd64
-            EXT: ""
-          - os: macos-latest
-            GOOS: darwin
-            GOARCH: amd64
-            EXT: ""
-          - os: windows-latest
-            GOOS: windows
-            GOARCH: amd64
-            EXT: ".exe"
+  build-and-release:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
@@ -41,35 +25,36 @@ jobs:
       - name: Generate schema code
         run: make generate
       
-      - name: Build binary
+      - name: Build Linux binary
         env:
-          GOOS: ${{ matrix.GOOS }}
-          GOARCH: ${{ matrix.GOARCH }}
+          GOOS: linux
+          GOARCH: amd64
         run: |
-          go build -ldflags="-s -w" -o "bin/income-atlas-${{ matrix.GOOS }}-${{ matrix.GOARCH }}${{ matrix.EXT }}" .
+          go build -ldflags="-s -w" -o "bin/income-atlas-linux-amd64" .
+
+      - name: Build macOS binary
+        env:
+          GOOS: darwin
+          GOARCH: amd64
+        run: |
+          go build -ldflags="-s -w" -o "bin/income-atlas-darwin-amd64" .
+
+      - name: Build Windows binary
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        shell: bash
+        run: |
+          go build -ldflags="-s -w" -o "bin/income-atlas-windows-amd64.exe" .
 
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
-            TAG_NAME="${GITHUB_REF#refs/tags/}"
-            gh release create "$TAG_NAME" "bin/income-atlas-${{ matrix.GOOS }}-${{ matrix.GOARCH }}${{ matrix.EXT }}" --title "Release $TAG_NAME" --draft=false
-          fi
-      
-      - name: Upload asset (macOS)
-        if: ${{ matrix.os == 'macos-latest' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
           TAG_NAME="${GITHUB_REF#refs/tags/}"
-          gh release upload "$TAG_NAME" "bin/income-atlas-${{ matrix.GOOS }}-${{ matrix.GOARCH }}${{ matrix.EXT }}"
-
-      - name: Upload asset (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          TAG_NAME="${GITHUB_REF#refs/tags/}"
-          gh release upload "$TAG_NAME" "bin/income-atlas-${{ matrix.GOOS }}-${{ matrix.GOARCH }}${{ matrix.EXT }}"
+          gh release create "$TAG_NAME" \
+            "bin/income-atlas-linux-amd64" \
+            "bin/income-atlas-darwin-amd64" \
+            "bin/income-atlas-windows-amd64.exe" \
+            --title "Release $TAG_NAME" \
+            --draft=false
