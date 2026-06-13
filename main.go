@@ -15,6 +15,7 @@ func main() {
 	srv, err := NewServer(ServerConfig{
 		WebFS:    webFS,
 		ConfigFS: configFS,
+		DataFS:   dataFS,
 	})
 	if err != nil {
 		log.Fatal(err)

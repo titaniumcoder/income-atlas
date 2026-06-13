@@ -1,0 +1,69 @@
+{
+  "$schema": "https://github.com/titaniumcoder/income-atlas/expenses",
+  "label": "Romania PFA",
+  "title": "Romania 2026 PFA approximation, personal withdrawal as salary path",
+  "description": "<p>Simplified Romania 2026 PFA profile. PFA has no legal dividend in this model, so gross dividend is zero. All remaining personal extraction is modeled through the gross salary path as a personal-withdrawal approximation, not as employment salary.</p><p>CAS and CASS are modeled as percentage rows with cap amounts, using monthly equivalents of annual thresholds. This is a planning approximation and does not fully model threshold activation, selected CAS base, deductibility, or year-to-date aggregation.</p>",
+  "currency": "RON",
+  "expenseGroups": {
+    "companyIncomeExpenses": [
+      {
+        "name": "Accounting",
+        "calculation": {
+          "type": "fixMonth",
+          "amount": 800
+        },
+        "description": "Fixed monthly accountant cost placeholder for PFA."
+      },
+      {
+        "name": "Business tools",
+        "calculation": {
+          "type": "fixMonth",
+          "amount": 1000
+        },
+        "description": "Fixed monthly deductible business tools placeholder."
+      }
+    ],
+    "companyProfitExpenses": [],
+    "grossSalaryExpenses": [
+      {
+        "name": "PFA income tax",
+        "calculation": {
+          "type": "percent",
+          "basis": "grossSalary",
+          "percent": 10
+        },
+        "description": "Simplified 10% income tax on PFA net income/personal withdrawal. Does not model all taxable-base deductions."
+      },
+      {
+        "name": "PFA CAS pension contribution below cap",
+        "calculation": {
+          "type": "percentBelowCap",
+          "basis": "grossSalary",
+          "percent": 25,
+          "capAmount": 8100.0
+        },
+        "description": "Approximation using a monthly cap equivalent of 24 \u00d7 RON 4,050 per year = RON 97,200/year, therefore RON 8,100/month. Threshold activation and chosen insured base are not modeled."
+      },
+      {
+        "name": "PFA CASS health contribution below cap",
+        "calculation": {
+          "type": "percentBelowCap",
+          "basis": "grossSalary",
+          "percent": 10,
+          "capAmount": 24300.0
+        },
+        "description": "Approximation using a monthly cap equivalent of 72 \u00d7 RON 4,050 per year = RON 291,600/year, therefore RON 24,300/month. Threshold activation, minimum base, deductibility, and year-to-date aggregation are not modeled."
+      }
+    ],
+    "grossDividendExpenses": []
+  },
+  "optimization": {
+    "grossSalary": {
+      "type": "residual",
+      "description": "For this PFA approximation, residual gross salary means personal withdrawal through the salary path, not legal employment salary."
+    },
+    "grossDividend": {
+      "type": "zero"
+    }
+  }
+}

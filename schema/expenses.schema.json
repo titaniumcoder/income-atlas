@@ -1,34 +1,50 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://income-atlas.local/schemas/expenses.schema.json",
-  "title": "Income Atlas Expenses and Optimization Configuration",
-  "description": "Configuration schema for the expense, salary/dividend, and one-target optimization model used by Income Atlas. The model is intentionally spreadsheet-like: company income is calculated elsewhere, then configurable expense rows are applied in four ordered groups. The final optimization target is normally total usable income, which is net salary plus net dividend. This schema is restrictive about allowed calculation modes, percentages, and non-negative money amounts, while still allowing freely named rows and country-specific combinations.",
+  "$id": "https://github.com/titaniumcoder/income-atlas/expenses",
+  "title": "Income Atlas Expenses Configuration",
+  "description": "Configuration schema for the expense and salary/dividend model used by Income Atlas. Each configuration includes UI metadata plus spreadsheet-like calculation rules. Company income is calculated elsewhere, then configurable rows are applied in four ordered groups. The configuration describes assumptions; it does not configure the search algorithm. The application optimizer always maximizes totalUsableIncome = netSalary + netDividend. Both grossSalary and grossDividend may be fixed, zero, residual, percent-based, or optimized. companyProfit and companyTotal are implicit non-negative invariants: if no explicit minimum is configured, their minimum is 0.",
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "version",
+    "label",
+    "title",
+    "description",
     "currency",
     "expenseGroups",
-    "optimization",
-    "constraints"
+    "optimization"
   ],
   "properties": {
-    "version": {
+    "$schema": {
       "type": "string",
-      "description": "Version of this settings document. This is not the JSON Schema version; it is the application configuration version. Use a semantic or date-like version such as '1.0.0'.",
+      "description": "Optional schema reference in configuration documents."
+    },
+    "label": {
+      "type": "string",
+      "description": "Short UI label for selecting this configuration, for example a tab label or dropdown label. Keep this concise.",
       "minLength": 1,
-      "examples": ["1.0.0"]
+      "maxLength": 80
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable title shown as the main heading for this configuration.",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable explanatory text shown below the title. May contain trusted HTML if the application chooses to render it as HTML; schema validation only treats it as a string.",
+      "minLength": 0,
+      "maxLength": 8000
     },
     "currency": {
       "type": "string",
-      "description": "Main currency for all fixed amounts in this configuration. Use an ISO 4217 currency code. The schema only validates the shape, not whether the code exists.",
-      "pattern": "^[A-Z]{3}$",
-      "examples": ["EUR", "BGN", "CHF", "RON"]
+      "description": "Main currency for fixed amounts. Use ISO 4217 such as EUR, BGN, RON, CHF.",
+      "pattern": "^[A-Z]{3}$"
     },
     "expenseGroups": {
       "type": "object",
-      "description": "The four ordered groups of expenses/deductions used by the model. Each group contains freely named rows. The row's calculation type determines how the amount is calculated. The same row shape is used everywhere, but each group only allows basis values that make sense for that group.",
       "additionalProperties": false,
+      "description": "The four ordered groups used by the model. Rows are freely named; each row declares a calculation type and basis.",
       "required": [
         "companyIncomeExpenses",
         "companyProfitExpenses",
@@ -38,7 +54,7 @@
       "properties": {
         "companyIncomeExpenses": {
           "type": "array",
-          "description": "Pre-profit company-side expenses. These are subtracted from company income before company profit is calculated. Typical examples: fixed monthly costs, fixed yearly costs, percentage of company income, gross salary itself, and employer-side salary costs based on gross salary. Employee-side salary deductions do not belong here.",
+          "description": "Pre-profit company-side rows. Subtracted from company income before company profit is calculated. Typical rows: fixed business costs, percentage of income, gross-salary-related employer costs.",
           "items": {
             "$ref": "#/$defs/companyIncomeExpenseRow"
           },
@@ -46,7 +62,7 @@
         },
         "companyProfitExpenses": {
           "type": "array",
-          "description": "Profit-level company-side expenses. These are subtracted from company profit to calculate company total before/after dividend logic. Typical examples: corporate profit tax, forced company reserve based on profit, fixed profit-level charges, or a gross salary row if a country/profile intentionally models a salary-like value at this stage. In the usual model, gross salary belongs in companyIncomeExpenses, not here.",
+          "description": "Profit-level company rows. Subtracted from company profit. Typical rows: corporate income tax, forced reserve based on profit.",
           "items": {
             "$ref": "#/$defs/companyProfitExpenseRow"
           },
@@ -54,7 +70,7 @@
         },
         "grossSalaryExpenses": {
           "type": "array",
-          "description": "Personal deductions from gross salary. These rows reduce gross salary to net salary. Typical examples: employee-side social contributions, employee-side health insurance, and salary income tax. Employer-side salary costs do not belong here because they are company expenses, not deductions from the employee's gross salary.",
+          "description": "Personal deductions from gross salary. These reduce gross salary to net salary. Typical rows: employee social contributions, employee health insurance, salary income tax.",
           "items": {
             "$ref": "#/$defs/grossSalaryExpenseRow"
           },
@@ -62,7 +78,7 @@
         },
         "grossDividendExpenses": {
           "type": "array",
-          "description": "Personal deductions from gross dividend. These rows reduce gross dividend to net dividend. Typical examples: dividend tax and dividend-related health/social contributions.",
+          "description": "Personal deductions from gross dividend. These reduce gross dividend to net dividend. Typical rows: dividend withholding tax and dividend-related health/social charges.",
           "items": {
             "$ref": "#/$defs/grossDividendExpenseRow"
           },
@@ -72,34 +88,23 @@
     },
     "optimization": {
       "type": "object",
-      "description": "One-target optimization configuration. Only one main target may be optimized at once. All other values should be fixed, residual, minimums, maximums, or constraints. The normal target is 'totalUsableIncome', meaning net salary plus net dividend.",
       "additionalProperties": false,
+      "description": "Defines how gross salary and gross dividend are determined. The objective is not configurable: the application maximizes totalUsableIncome = netSalary + netDividend whenever one or both gross amounts are optimized. If neither gross amount is optimized, the configuration is just evaluated as a calculation. The search strategy, candidate generation, cap probing, refinement, and caching are application concerns, not schema fields.",
       "required": [
-        "mainTarget",
-        "minimums"
+        "grossSalary",
+        "grossDividend"
       ],
       "properties": {
-        "mainTarget": {
-          "type": "string",
-          "description": "The single value the optimizer should maximize. Use 'totalUsableIncome' for the usual goal: maximize net salary plus net dividend. 'grossDividend', 'grossSalary', and 'companyTotal' are supported for scenario exploration, but they are not normally the economic target.",
-          "enum": [
-            "totalUsableIncome",
-            "grossDividend",
-            "grossSalary",
-            "companyTotal"
-          ],
-          "default": "totalUsableIncome"
+        "grossSalary": {
+          "$ref": "#/$defs/grossSalaryRule"
+        },
+        "grossDividend": {
+          "$ref": "#/$defs/grossDividendRule"
         },
         "minimums": {
           "type": "object",
-          "description": "Optional lower bounds for optimization outputs. These are constraints, not targets. Each minimum can be disabled, fixed, or expressed as a percentage of company income. For example, companyTotal can be required to stay at least 10% of company income, while grossSalary can have a fixed minimum.",
+          "description": "Optional minimum result constraints. Omitted minimums are disabled, except companyProfit and companyTotal: these are special model invariants with an implicit minimum of 0. These are lower bounds, not optimization targets.",
           "additionalProperties": false,
-          "required": [
-            "totalUsableIncome",
-            "grossDividend",
-            "grossSalary",
-            "companyTotal"
-          ],
           "properties": {
             "totalUsableIncome": {
               "$ref": "#/$defs/minimumRule"
@@ -112,102 +117,26 @@
             },
             "companyTotal": {
               "$ref": "#/$defs/minimumRule"
+            },
+            "companyProfit": {
+              "$ref": "#/$defs/minimumRule"
             }
           }
-        },
-        "salarySearch": {
-          "type": "object",
-          "description": "Optional search settings for a simple scenario/enumeration optimizer. This does not define tax logic; it only controls how candidate gross salaries are generated. A small step gives more precision but more calculations. Explicit candidate points are useful for caps and thresholds where the optimum often sits.",
-          "additionalProperties": false,
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "description": "Whether the optimizer may vary gross salary. If false, the application should use whatever gross salary is provided elsewhere.",
-              "default": true
-            },
-            "stepAmount": {
-              "$ref": "#/$defs/nonNegativeMoneyAmount",
-              "description": "Increment used when enumerating candidate gross salaries. Example: 50 or 100. The schema allows zero because some applications may ignore this field when explicit candidate points are used, but a practical optimizer should use a positive value."
-            },
-            "explicitCandidateAmounts": {
-              "type": "array",
-              "description": "Additional gross salary candidates that should always be tested, such as 0, minimum salary, contribution caps, or legal threshold values. Values must be non-negative.",
-              "items": {
-                "$ref": "#/$defs/nonNegativeMoneyAmount"
-              },
-              "uniqueItems": true,
-              "default": []
-            }
-          }
-        },
-        "grossDividendMode": {
-          "type": "string",
-          "description": "How gross dividend should be handled. 'residual' means dividend is derived from remaining company money after company expenses, profit expenses, and required company total. This is the recommended default because it avoids invalid salary/dividend combinations. 'fixed' means the value is supplied elsewhere. 'optimized' means the optimizer may vary it directly. 'zero' disables dividends.",
-          "enum": [
-            "residual",
-            "fixed",
-            "optimized",
-            "zero"
-          ],
-          "default": "residual"
         }
       }
     },
     "constraints": {
       "type": "object",
-      "description": "Hard constraints checked after each candidate calculation. Constraints should invalidate a candidate, not change its computed values.",
       "additionalProperties": false,
-      "required": [
-        "minimumGrossSalary",
-        "maximumDividendToSalaryPercent"
-      ],
+      "description": "Optional hard constraints. Omitted constraints are disabled.",
       "properties": {
         "minimumGrossSalary": {
           "$ref": "#/$defs/minimumRule",
-          "description": "Minimum gross salary constraint. Use mode 'fixed' for a hard minimum salary amount. Use mode 'percentOfCompanyIncome' if the minimum salary should be derived from company income. Use mode 'disabled' if there is no minimum salary constraint."
+          "description": "Optional lower bound for gross salary. Useful for immigration, legal, or practical minimum salary assumptions."
         },
         "maximumDividendToSalaryPercent": {
-          "type": "object",
-          "description": "Maximum gross dividend relative to gross salary. This is useful for countries/profiles where excessive dividends compared to salary are restricted or risky. Example: 10 means gross dividend may not exceed 10% of gross salary. Use mode 'disabled' if no such restriction exists. When gross salary is zero and this constraint is enabled, the application should treat any positive dividend as invalid unless it explicitly implements another fallback rule.",
-          "additionalProperties": false,
-          "required": ["mode"],
-          "properties": {
-            "mode": {
-              "type": "string",
-              "enum": ["disabled", "enabled"],
-              "description": "Whether the dividend-to-salary constraint is active."
-            },
-            "percent": {
-              "$ref": "#/$defs/percentage",
-              "description": "Maximum allowed gross dividend as a percentage of gross salary. Required when mode is 'enabled'."
-            }
-          },
-          "allOf": [
-            {
-              "if": {
-                "properties": {
-                  "mode": {"const": "enabled"}
-                },
-                "required": ["mode"]
-              },
-              "then": {
-                "required": ["percent"]
-              }
-            },
-            {
-              "if": {
-                "properties": {
-                  "mode": {"const": "disabled"}
-                },
-                "required": ["mode"]
-              },
-              "then": {
-                "not": {
-                  "required": ["percent"]
-                }
-              }
-            }
-          ]
+          "$ref": "#/$defs/percentage",
+          "description": "Optional maximum gross dividend as percent of gross salary. Omitted means disabled. Example: 10 means gross dividend may not exceed 10% of gross salary."
         }
       }
     }
@@ -215,197 +144,28 @@
   "$defs": {
     "nonEmptyName": {
       "type": "string",
-      "description": "Human-readable row name. Names are free-form so country-specific rows can be modeled without code changes.",
       "minLength": 1,
-      "maxLength": 120
+      "maxLength": 120,
+      "description": "Human-readable row name. Names are free-form."
     },
     "nonNegativeMoneyAmount": {
       "type": "number",
-      "description": "A non-negative money amount in the configuration currency.",
-      "minimum": 0
+      "minimum": 0,
+      "description": "Non-negative money amount in the configuration currency."
     },
     "positiveMoneyAmount": {
       "type": "number",
-      "description": "A positive money amount in the configuration currency.",
-      "exclusiveMinimum": 0
+      "exclusiveMinimum": 0,
+      "description": "Positive money amount in the configuration currency."
     },
     "percentage": {
       "type": "number",
-      "description": "Percentage value between 0 and 100. Use 10 for 10%, not 0.10.",
       "minimum": 0,
-      "maximum": 100
-    },
-    "frequency": {
-      "type": "string",
-      "description": "Frequency for fixed rows. Monthly values are used as-is for a month view. Yearly values can be divided by 12 for a month view or used directly for a year view, depending on application period handling.",
-      "enum": ["month", "year"]
-    },
-    "minimumRule": {
-      "type": "object",
-      "description": "A lower-bound rule. 'disabled' means no minimum. 'fixed' means a non-negative fixed amount. 'percentOfCompanyIncome' means a percentage of company income. This is intended for constraints and optimization minimums, not for ordinary expense rows.",
-      "additionalProperties": false,
-      "required": ["mode"],
-      "properties": {
-        "mode": {
-          "type": "string",
-          "enum": ["disabled", "fixed", "percentOfCompanyIncome"],
-          "description": "How the minimum should be calculated."
-        },
-        "amount": {
-          "$ref": "#/$defs/nonNegativeMoneyAmount",
-          "description": "Required when mode is 'fixed'."
-        },
-        "percent": {
-          "$ref": "#/$defs/percentage",
-          "description": "Required when mode is 'percentOfCompanyIncome'."
-        }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "mode": {"const": "fixed"}
-            },
-            "required": ["mode"]
-          },
-          "then": {
-            "required": ["amount"],
-            "not": {
-              "required": ["percent"]
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "mode": {"const": "percentOfCompanyIncome"}
-            },
-            "required": ["mode"]
-          },
-          "then": {
-            "required": ["percent"],
-            "not": {
-              "required": ["amount"]
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "mode": {"const": "disabled"}
-            },
-            "required": ["mode"]
-          },
-          "then": {
-            "not": {
-              "anyOf": [
-                {"required": ["amount"]},
-                {"required": ["percent"]}
-              ]
-            }
-          }
-        }
-      ]
-    },
-    "rowBaseCommon": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["name", "calculation"],
-      "properties": {
-        "name": {
-          "$ref": "#/$defs/nonEmptyName"
-        },
-        "enabled": {
-          "type": "boolean",
-          "description": "Whether this row is active. Omitted means true.",
-          "default": true
-        },
-        "description": {
-          "type": "string",
-          "description": "Optional documentation for humans and AI agents. Use this to explain legal assumptions, simplifications, or why the row exists.",
-          "maxLength": 2000
-        },
-        "calculation": {
-          "type": "object",
-          "description": "The calculation used for this row. Exactly one shape is selected by the 'type' field. Fixed rows require an amount and a frequency. Percentage rows require a basis and a rate. Below-cap and above-cap percentage rows additionally require a cap amount.",
-          "oneOf": [
-            {"$ref": "#/$defs/fixMonthCalculation"},
-            {"$ref": "#/$defs/fixYearCalculation"},
-            {"$ref": "#/$defs/percentCalculation"},
-            {"$ref": "#/$defs/percentBelowCapCalculation"},
-            {"$ref": "#/$defs/percentAboveCapCalculation"},
-            {"$ref": "#/$defs/salaryCalculation"}
-          ]
-        }
-      }
-    },
-    "fixMonthCalculation": {
-      "type": "object",
-      "description": "Fixed monthly amount. Example: accounting fee, office rent, hosting subscription charged monthly.",
-      "additionalProperties": false,
-      "required": ["type", "amount"],
-      "properties": {
-        "type": {"const": "fixMonth"},
-        "amount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
-      }
-    },
-    "fixYearCalculation": {
-      "type": "object",
-      "description": "Fixed yearly amount. Example: annual hosting, annual chamber fee, yearly reserve amount. The application decides how to allocate this to month/year views.",
-      "additionalProperties": false,
-      "required": ["type", "amount"],
-      "properties": {
-        "type": {"const": "fixYear"},
-        "amount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
-      }
-    },
-    "percentCalculation": {
-      "type": "object",
-      "description": "Simple percentage of a basis. Example: 10% of company profit for corporate tax, 5% of gross dividend for dividend tax, or 10% of company income for a company reserve.",
-      "additionalProperties": false,
-      "required": ["type", "basis", "percent"],
-      "properties": {
-        "type": {"const": "percent"},
-        "basis": {"$ref": "#/$defs/basis"},
-        "percent": {"$ref": "#/$defs/percentage"}
-      }
-    },
-    "percentBelowCapCalculation": {
-      "type": "object",
-      "description": "Percentage applied only to the part of the basis up to the cap. Example: 20% of salary below a social-contribution cap. If the basis is 5,000 and the cap is 2,000, this row applies to 2,000.",
-      "additionalProperties": false,
-      "required": ["type", "basis", "percent", "capAmount"],
-      "properties": {
-        "type": {"const": "percentBelowCap"},
-        "basis": {"$ref": "#/$defs/basis"},
-        "percent": {"$ref": "#/$defs/percentage"},
-        "capAmount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
-      }
-    },
-    "percentAboveCapCalculation": {
-      "type": "object",
-      "description": "Percentage applied only to the part of the basis above the cap. Example: 10% of salary above a social-contribution cap. If the basis is 5,000 and the cap is 2,000, this row applies to 3,000.",
-      "additionalProperties": false,
-      "required": ["type", "basis", "percent", "capAmount"],
-      "properties": {
-        "type": {"const": "percentAboveCap"},
-        "basis": {"$ref": "#/$defs/basis"},
-        "percent": {"$ref": "#/$defs/percentage"},
-        "capAmount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
-      }
-    },
-    "salaryCalculation": {
-      "type": "object",
-      "description": "The gross salary row itself. This is a pass-through row whose amount is the configured or optimized gross salary. It is mainly used in company-side expense groups because gross salary reduces company profit. It should normally not be used inside grossSalaryExpenses, where only deductions from gross salary belong.",
-      "additionalProperties": false,
-      "required": ["type"],
-      "properties": {
-        "type": {"const": "salary"}
-      }
+      "maximum": 100,
+      "description": "Percentage between 0 and 100. Use 10 for 10%, not 0.10."
     },
     "basis": {
       "type": "string",
-      "description": "The amount used as the calculation basis. Not every group allows every basis; group-specific rules restrict this further.",
       "enum": [
         "companyIncome",
         "companyProfit",
@@ -413,20 +173,166 @@
         "grossDividend"
       ]
     },
+    "rowCommon": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "calculation"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/nonEmptyName"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "calculation": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/fixMonthCalculation"
+            },
+            {
+              "$ref": "#/$defs/fixYearCalculation"
+            },
+            {
+              "$ref": "#/$defs/percentCalculation"
+            },
+            {
+              "$ref": "#/$defs/percentBelowCapCalculation"
+            },
+            {
+              "$ref": "#/$defs/percentAboveCapCalculation"
+            }
+          ]
+        }
+      }
+    },
+    "fixMonthCalculation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "amount"
+      ],
+      "properties": {
+        "type": {
+          "const": "fixMonth"
+        },
+        "amount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
+      }
+    },
+    "fixYearCalculation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "amount"
+      ],
+      "properties": {
+        "type": {
+          "const": "fixYear"
+        },
+        "amount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
+      }
+    },
+    "percentCalculation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "basis",
+        "percent"
+      ],
+      "properties": {
+        "type": {
+          "const": "percent"
+        },
+        "basis": {
+          "$ref": "#/$defs/basis"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        }
+      }
+    },
+    "percentBelowCapCalculation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "basis",
+        "percent",
+        "capAmount"
+      ],
+      "properties": {
+        "type": {
+          "const": "percentBelowCap"
+        },
+        "basis": {
+          "$ref": "#/$defs/basis"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        },
+        "capAmount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
+      }
+    },
+    "percentAboveCapCalculation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "basis",
+        "percent",
+        "capAmount"
+      ],
+      "properties": {
+        "type": {
+          "const": "percentAboveCap"
+        },
+        "basis": {
+          "$ref": "#/$defs/basis"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        },
+        "capAmount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
+      }
+    },
     "companyIncomeExpenseRow": {
       "allOf": [
-        {"$ref": "#/$defs/rowBaseCommon"},
         {
-          "description": "Row allowed in companyIncomeExpenses. Allowed bases are companyIncome and grossSalary. The special salary calculation is allowed here because gross salary itself is a company expense before profit.",
+          "$ref": "#/$defs/rowCommon"
+        },
+        {
           "properties": {
             "calculation": {
               "oneOf": [
-                {"$ref": "#/$defs/fixMonthCalculation"},
-                {"$ref": "#/$defs/fixYearCalculation"},
-                {"$ref": "#/$defs/salaryCalculation"},
-                {"$ref": "#/$defs/companyIncomeOrSalaryPercentCalculation"},
-                {"$ref": "#/$defs/companyIncomeOrSalaryPercentBelowCapCalculation"},
-                {"$ref": "#/$defs/companyIncomeOrSalaryPercentAboveCapCalculation"}
+                {
+                  "$ref": "#/$defs/fixMonthCalculation"
+                },
+                {
+                  "$ref": "#/$defs/fixYearCalculation"
+                },
+                {
+                  "$ref": "#/$defs/companyIncomeOrSalaryPercentCalculation"
+                },
+                {
+                  "$ref": "#/$defs/companyIncomeOrSalaryPercentBelowCapCalculation"
+                },
+                {
+                  "$ref": "#/$defs/companyIncomeOrSalaryPercentAboveCapCalculation"
+                }
               ]
             }
           }
@@ -435,18 +341,28 @@
     },
     "companyProfitExpenseRow": {
       "allOf": [
-        {"$ref": "#/$defs/rowBaseCommon"},
         {
-          "description": "Row allowed in companyProfitExpenses. Allowed bases are companyProfit and grossSalary. The special salary calculation is allowed only for unusual country/profile configurations; the normal salary row belongs in companyIncomeExpenses.",
+          "$ref": "#/$defs/rowCommon"
+        },
+        {
           "properties": {
             "calculation": {
               "oneOf": [
-                {"$ref": "#/$defs/fixMonthCalculation"},
-                {"$ref": "#/$defs/fixYearCalculation"},
-                {"$ref": "#/$defs/salaryCalculation"},
-                {"$ref": "#/$defs/companyProfitOrSalaryPercentCalculation"},
-                {"$ref": "#/$defs/companyProfitOrSalaryPercentBelowCapCalculation"},
-                {"$ref": "#/$defs/companyProfitOrSalaryPercentAboveCapCalculation"}
+                {
+                  "$ref": "#/$defs/fixMonthCalculation"
+                },
+                {
+                  "$ref": "#/$defs/fixYearCalculation"
+                },
+                {
+                  "$ref": "#/$defs/companyProfitPercentCalculation"
+                },
+                {
+                  "$ref": "#/$defs/companyProfitPercentBelowCapCalculation"
+                },
+                {
+                  "$ref": "#/$defs/companyProfitPercentAboveCapCalculation"
+                }
               ]
             }
           }
@@ -455,17 +371,28 @@
     },
     "grossSalaryExpenseRow": {
       "allOf": [
-        {"$ref": "#/$defs/rowBaseCommon"},
         {
-          "description": "Row allowed in grossSalaryExpenses. Allowed basis is grossSalary. Fixed rows are allowed for special salary-side deductions, but the salary pass-through calculation is not allowed here.",
+          "$ref": "#/$defs/rowCommon"
+        },
+        {
           "properties": {
             "calculation": {
               "oneOf": [
-                {"$ref": "#/$defs/fixMonthCalculation"},
-                {"$ref": "#/$defs/fixYearCalculation"},
-                {"$ref": "#/$defs/grossSalaryPercentCalculation"},
-                {"$ref": "#/$defs/grossSalaryPercentBelowCapCalculation"},
-                {"$ref": "#/$defs/grossSalaryPercentAboveCapCalculation"}
+                {
+                  "$ref": "#/$defs/fixMonthCalculation"
+                },
+                {
+                  "$ref": "#/$defs/fixYearCalculation"
+                },
+                {
+                  "$ref": "#/$defs/grossSalaryPercentCalculation"
+                },
+                {
+                  "$ref": "#/$defs/grossSalaryPercentBelowCapCalculation"
+                },
+                {
+                  "$ref": "#/$defs/grossSalaryPercentAboveCapCalculation"
+                }
               ]
             }
           }
@@ -474,17 +401,28 @@
     },
     "grossDividendExpenseRow": {
       "allOf": [
-        {"$ref": "#/$defs/rowBaseCommon"},
         {
-          "description": "Row allowed in grossDividendExpenses. Allowed basis is grossDividend. Fixed rows are allowed for special dividend-side deductions.",
+          "$ref": "#/$defs/rowCommon"
+        },
+        {
           "properties": {
             "calculation": {
               "oneOf": [
-                {"$ref": "#/$defs/fixMonthCalculation"},
-                {"$ref": "#/$defs/fixYearCalculation"},
-                {"$ref": "#/$defs/grossDividendPercentCalculation"},
-                {"$ref": "#/$defs/grossDividendPercentBelowCapCalculation"},
-                {"$ref": "#/$defs/grossDividendPercentAboveCapCalculation"}
+                {
+                  "$ref": "#/$defs/fixMonthCalculation"
+                },
+                {
+                  "$ref": "#/$defs/fixYearCalculation"
+                },
+                {
+                  "$ref": "#/$defs/grossDividendPercentCalculation"
+                },
+                {
+                  "$ref": "#/$defs/grossDividendPercentBelowCapCalculation"
+                },
+                {
+                  "$ref": "#/$defs/grossDividendPercentAboveCapCalculation"
+                }
               ]
             }
           }
@@ -493,139 +431,441 @@
     },
     "companyIncomeOrSalaryBasis": {
       "type": "string",
-      "enum": ["companyIncome", "grossSalary"]
-    },
-    "companyProfitOrSalaryBasis": {
-      "type": "string",
-      "enum": ["companyProfit", "grossSalary"]
+      "enum": [
+        "companyIncome",
+        "grossSalary"
+      ]
     },
     "companyIncomeOrSalaryPercentCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent"],
+      "required": [
+        "type",
+        "basis",
+        "percent"
+      ],
       "properties": {
-        "type": {"const": "percent"},
-        "basis": {"$ref": "#/$defs/companyIncomeOrSalaryBasis"},
-        "percent": {"$ref": "#/$defs/percentage"}
+        "type": {
+          "const": "percent"
+        },
+        "basis": {
+          "$ref": "#/$defs/companyIncomeOrSalaryBasis"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        }
       }
     },
     "companyIncomeOrSalaryPercentBelowCapCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent", "capAmount"],
+      "required": [
+        "type",
+        "basis",
+        "percent",
+        "capAmount"
+      ],
       "properties": {
-        "type": {"const": "percentBelowCap"},
-        "basis": {"$ref": "#/$defs/companyIncomeOrSalaryBasis"},
-        "percent": {"$ref": "#/$defs/percentage"},
-        "capAmount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
+        "type": {
+          "const": "percentBelowCap"
+        },
+        "basis": {
+          "$ref": "#/$defs/companyIncomeOrSalaryBasis"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        },
+        "capAmount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
       }
     },
     "companyIncomeOrSalaryPercentAboveCapCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent", "capAmount"],
+      "required": [
+        "type",
+        "basis",
+        "percent",
+        "capAmount"
+      ],
       "properties": {
-        "type": {"const": "percentAboveCap"},
-        "basis": {"$ref": "#/$defs/companyIncomeOrSalaryBasis"},
-        "percent": {"$ref": "#/$defs/percentage"},
-        "capAmount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
+        "type": {
+          "const": "percentAboveCap"
+        },
+        "basis": {
+          "$ref": "#/$defs/companyIncomeOrSalaryBasis"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        },
+        "capAmount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
       }
     },
-    "companyProfitOrSalaryPercentCalculation": {
+    "companyProfitPercentCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent"],
+      "required": [
+        "type",
+        "basis",
+        "percent"
+      ],
       "properties": {
-        "type": {"const": "percent"},
-        "basis": {"$ref": "#/$defs/companyProfitOrSalaryBasis"},
-        "percent": {"$ref": "#/$defs/percentage"}
+        "type": {
+          "const": "percent"
+        },
+        "basis": {
+          "const": "companyProfit"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        }
       }
     },
-    "companyProfitOrSalaryPercentBelowCapCalculation": {
+    "companyProfitPercentBelowCapCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent", "capAmount"],
+      "required": [
+        "type",
+        "basis",
+        "percent",
+        "capAmount"
+      ],
       "properties": {
-        "type": {"const": "percentBelowCap"},
-        "basis": {"$ref": "#/$defs/companyProfitOrSalaryBasis"},
-        "percent": {"$ref": "#/$defs/percentage"},
-        "capAmount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
+        "type": {
+          "const": "percentBelowCap"
+        },
+        "basis": {
+          "const": "companyProfit"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        },
+        "capAmount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
       }
     },
-    "companyProfitOrSalaryPercentAboveCapCalculation": {
+    "companyProfitPercentAboveCapCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent", "capAmount"],
+      "required": [
+        "type",
+        "basis",
+        "percent",
+        "capAmount"
+      ],
       "properties": {
-        "type": {"const": "percentAboveCap"},
-        "basis": {"$ref": "#/$defs/companyProfitOrSalaryBasis"},
-        "percent": {"$ref": "#/$defs/percentage"},
-        "capAmount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
+        "type": {
+          "const": "percentAboveCap"
+        },
+        "basis": {
+          "const": "companyProfit"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        },
+        "capAmount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
       }
     },
     "grossSalaryPercentCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent"],
+      "required": [
+        "type",
+        "basis",
+        "percent"
+      ],
       "properties": {
-        "type": {"const": "percent"},
-        "basis": {"const": "grossSalary"},
-        "percent": {"$ref": "#/$defs/percentage"}
+        "type": {
+          "const": "percent"
+        },
+        "basis": {
+          "const": "grossSalary"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        }
       }
     },
     "grossSalaryPercentBelowCapCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent", "capAmount"],
+      "required": [
+        "type",
+        "basis",
+        "percent",
+        "capAmount"
+      ],
       "properties": {
-        "type": {"const": "percentBelowCap"},
-        "basis": {"const": "grossSalary"},
-        "percent": {"$ref": "#/$defs/percentage"},
-        "capAmount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
+        "type": {
+          "const": "percentBelowCap"
+        },
+        "basis": {
+          "const": "grossSalary"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        },
+        "capAmount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
       }
     },
     "grossSalaryPercentAboveCapCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent", "capAmount"],
+      "required": [
+        "type",
+        "basis",
+        "percent",
+        "capAmount"
+      ],
       "properties": {
-        "type": {"const": "percentAboveCap"},
-        "basis": {"const": "grossSalary"},
-        "percent": {"$ref": "#/$defs/percentage"},
-        "capAmount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
+        "type": {
+          "const": "percentAboveCap"
+        },
+        "basis": {
+          "const": "grossSalary"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        },
+        "capAmount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
       }
     },
     "grossDividendPercentCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent"],
+      "required": [
+        "type",
+        "basis",
+        "percent"
+      ],
       "properties": {
-        "type": {"const": "percent"},
-        "basis": {"const": "grossDividend"},
-        "percent": {"$ref": "#/$defs/percentage"}
+        "type": {
+          "const": "percent"
+        },
+        "basis": {
+          "const": "grossDividend"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        }
       }
     },
     "grossDividendPercentBelowCapCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent", "capAmount"],
+      "required": [
+        "type",
+        "basis",
+        "percent",
+        "capAmount"
+      ],
       "properties": {
-        "type": {"const": "percentBelowCap"},
-        "basis": {"const": "grossDividend"},
-        "percent": {"$ref": "#/$defs/percentage"},
-        "capAmount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
+        "type": {
+          "const": "percentBelowCap"
+        },
+        "basis": {
+          "const": "grossDividend"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        },
+        "capAmount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
       }
     },
     "grossDividendPercentAboveCapCalculation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "basis", "percent", "capAmount"],
+      "required": [
+        "type",
+        "basis",
+        "percent",
+        "capAmount"
+      ],
       "properties": {
-        "type": {"const": "percentAboveCap"},
-        "basis": {"const": "grossDividend"},
-        "percent": {"$ref": "#/$defs/percentage"},
-        "capAmount": {"$ref": "#/$defs/nonNegativeMoneyAmount"}
+        "type": {
+          "const": "percentAboveCap"
+        },
+        "basis": {
+          "const": "grossDividend"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        },
+        "capAmount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
       }
+    },
+    "minimumRule": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/minimumFixedRule"
+        },
+        {
+          "$ref": "#/$defs/minimumPercentOfCompanyIncomeRule"
+        }
+      ]
+    },
+    "minimumFixedRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "amount"
+      ],
+      "properties": {
+        "type": {
+          "const": "fixed"
+        },
+        "amount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
+      }
+    },
+    "minimumPercentOfCompanyIncomeRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "percent"
+      ],
+      "properties": {
+        "type": {
+          "const": "percentOfCompanyIncome"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        }
+      }
+    },
+    "grossSalaryRule": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/grossAmountZeroRule"
+        },
+        {
+          "$ref": "#/$defs/grossAmountFixedRule"
+        },
+        {
+          "$ref": "#/$defs/grossAmountPercentOfCompanyIncomeRule"
+        },
+        {
+          "$ref": "#/$defs/grossAmountOptimizedRule"
+        },
+        {
+          "$ref": "#/$defs/grossAmountResidualRule"
+        }
+      ]
+    },
+    "grossDividendRule": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/grossAmountZeroRule"
+        },
+        {
+          "$ref": "#/$defs/grossAmountFixedRule"
+        },
+        {
+          "$ref": "#/$defs/grossAmountPercentOfCompanyIncomeRule"
+        },
+        {
+          "$ref": "#/$defs/grossAmountOptimizedRule"
+        },
+        {
+          "$ref": "#/$defs/grossAmountResidualRule"
+        }
+      ]
+    },
+    "grossAmountZeroRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "zero"
+        }
+      }
+    },
+    "grossAmountFixedRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "amount"
+      ],
+      "properties": {
+        "type": {
+          "const": "fixed"
+        },
+        "amount": {
+          "$ref": "#/$defs/nonNegativeMoneyAmount"
+        }
+      }
+    },
+    "grossAmountPercentOfCompanyIncomeRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "percent"
+      ],
+      "properties": {
+        "type": {
+          "const": "percentOfCompanyIncome"
+        },
+        "percent": {
+          "$ref": "#/$defs/percentage"
+        }
+      }
+    },
+    "grossAmountOptimizedRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "optimized"
+        },
+        "minimum": {
+          "$ref": "#/$defs/minimumRule"
+        },
+        "maximum": {
+          "$ref": "#/$defs/minimumRule"
+        }
+      }
+    },
+    "grossAmountResidualRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "residual"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "description": "Use the remaining available amount after earlier calculation stages and invariants are applied. Application logic defines the exact residual direction for salary or dividend."
     }
   }
 }

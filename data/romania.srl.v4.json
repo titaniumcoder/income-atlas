@@ -1,0 +1,108 @@
+{
+  "$schema": "https://github.com/titaniumcoder/income-atlas/expenses",
+  "label": "Romania SRL",
+  "title": "Romania 2026 SRL regular company, minimum salary + residual dividend",
+  "description": "<p>Simplified Romania 2026 regular SRL profile. This uses standard corporate income tax, employer CAM, salary CAS/CASS, salary income tax as an effective rate after employee contributions, dividend tax, and a simplified monthly equivalent for dividend CASS.</p><p>Gross salary is fixed to the January\u2013June 2026 minimum wage placeholder RON 4,050. Update to RON 4,325 for periods from July 2026 if needed. Dividend is residual. The optimizer objective is implicit: maximize total usable income.</p>",
+  "currency": "RON",
+  "expenseGroups": {
+    "companyIncomeExpenses": [
+      {
+        "name": "Accounting",
+        "calculation": {
+          "type": "fixMonth",
+          "amount": 1200
+        },
+        "description": "Fixed monthly accountant cost placeholder."
+      },
+      {
+        "name": "Office and internet",
+        "calculation": {
+          "type": "fixMonth",
+          "amount": 1500
+        },
+        "description": "Fixed monthly business overhead placeholder."
+      },
+      {
+        "name": "Employer work insurance contribution CAM",
+        "calculation": {
+          "type": "percent",
+          "basis": "grossSalary",
+          "percent": 2.25
+        },
+        "description": "Romanian employer-side CAM planning assumption under normal working conditions."
+      }
+    ],
+    "companyProfitExpenses": [
+      {
+        "name": "Corporate income tax",
+        "calculation": {
+          "type": "percent",
+          "basis": "companyProfit",
+          "percent": 16
+        },
+        "description": "Romanian standard corporate income tax planning assumption for a regular SRL."
+      }
+    ],
+    "grossSalaryExpenses": [
+      {
+        "name": "Employee pension contribution CAS",
+        "calculation": {
+          "type": "percent",
+          "basis": "grossSalary",
+          "percent": 25
+        },
+        "description": "Romanian employee-side CAS planning assumption for employment income. Modeled uncapped for salary."
+      },
+      {
+        "name": "Employee health contribution CASS",
+        "calculation": {
+          "type": "percentBelowCap",
+          "basis": "grossSalary",
+          "percent": 10,
+          "capAmount": 8100.0
+        },
+        "description": "Planning assumption using a monthly cap equivalent of 24 \u00d7 RON 4,050 per year = RON 97,200/year, therefore RON 8,100/month. Verify the employment-income cap assumption before production use."
+      },
+      {
+        "name": "Salary income tax effective after CAS/CASS",
+        "calculation": {
+          "type": "percent",
+          "basis": "grossSalary",
+          "percent": 6.5
+        },
+        "description": "Approximation of 10% salary income tax after employee contributions. Because contribution caps and personal deductions can change the taxable base, this remains an effective-rate planning row."
+      }
+    ],
+    "grossDividendExpenses": [
+      {
+        "name": "Dividend withholding tax",
+        "calculation": {
+          "type": "percent",
+          "basis": "grossDividend",
+          "percent": 16
+        },
+        "description": "Romanian 2026 dividend tax planning assumption."
+      },
+      {
+        "name": "Dividend CASS monthly cap approximation",
+        "calculation": {
+          "type": "percentBelowCap",
+          "basis": "grossDividend",
+          "percent": 10,
+          "capAmount": 8100.0
+        },
+        "description": "Simplified monthly equivalent of Romanian CASS on non-salary income. The annual cap for dividends/non-salary income is modeled as 24 \u00d7 RON 4,050 = RON 97,200/year, therefore RON 8,100/month. This ignores threshold tiers and year-to-date aggregation."
+      }
+    ]
+  },
+  "optimization": {
+    "grossSalary": {
+      "type": "fixed",
+      "amount": 4050
+    },
+    "grossDividend": {
+      "type": "residual",
+      "description": "Dividend is whatever remains after company costs, fixed salary, company tax, and the implicit non-negative company total rule."
+    }
+  }
+}

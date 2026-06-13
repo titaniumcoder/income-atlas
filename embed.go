@@ -7,3 +7,6 @@ var webFS embed.FS
 
 //go:embed config/*.json
 var configFS embed.FS
+
+//go:embed data/*.json
+var dataFS embed.FS

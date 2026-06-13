@@ -1,0 +1,107 @@
+{
+  "$schema": "https://github.com/titaniumcoder/income-atlas/expenses",
+  "label": "Bulgaria salary",
+  "title": "Bulgaria 2026 salary-only extraction",
+  "description": "<p>Simplified Bulgaria 2026 planning profile. The maximum monthly insurance base is modeled as EUR 2,111.64. Employer and employee contribution rates are planning assumptions. Salary income tax is modeled with effective percentage rows because the schema intentionally avoids taxable-base formulas.</p><p>Gross salary is optimized, gross dividend is zero. The optimizer objective is implicit: maximize total usable income. The application should reject candidates with negative company profit or company total.</p>",
+  "currency": "EUR",
+  "expenseGroups": {
+    "companyIncomeExpenses": [
+      {
+        "name": "Accounting",
+        "calculation": {
+          "type": "fixMonth",
+          "amount": 150
+        },
+        "description": "Fixed monthly accountant cost placeholder."
+      },
+      {
+        "name": "Office and internet",
+        "calculation": {
+          "type": "fixMonth",
+          "amount": 300
+        },
+        "description": "Fixed monthly business overhead placeholder."
+      },
+      {
+        "name": "AI and software tools",
+        "calculation": {
+          "type": "fixMonth",
+          "amount": 250
+        },
+        "description": "Fixed monthly software and AI tooling placeholder."
+      },
+      {
+        "name": "Employer social and health contributions below cap",
+        "calculation": {
+          "type": "percentBelowCap",
+          "basis": "grossSalary",
+          "percent": 19.62,
+          "capAmount": 2111.64
+        },
+        "description": "Employer-side contribution approximation for Bulgaria 2026, capped at the monthly maximum insurance base."
+      }
+    ],
+    "companyProfitExpenses": [
+      {
+        "name": "Corporate income tax",
+        "calculation": {
+          "type": "percent",
+          "basis": "companyProfit",
+          "percent": 10
+        },
+        "description": "Bulgarian corporate income tax planning assumption."
+      }
+    ],
+    "grossSalaryExpenses": [
+      {
+        "name": "Employee social and health contributions below cap",
+        "calculation": {
+          "type": "percentBelowCap",
+          "basis": "grossSalary",
+          "percent": 13.78,
+          "capAmount": 2111.64
+        },
+        "description": "Employee-side contribution approximation for Bulgaria 2026, capped at the same monthly maximum insurance base."
+      },
+      {
+        "name": "Salary income tax below cap effective rate",
+        "calculation": {
+          "type": "percentBelowCap",
+          "basis": "grossSalary",
+          "percent": 8.622,
+          "capAmount": 2111.64
+        },
+        "description": "Approximation of 10% Bulgarian PIT after employee-side contributions below the cap: 10% \u00d7 (100% - 13.78%)."
+      },
+      {
+        "name": "Salary income tax above cap",
+        "calculation": {
+          "type": "percentAboveCap",
+          "basis": "grossSalary",
+          "percent": 10,
+          "capAmount": 2111.64
+        },
+        "description": "Approximation of 10% Bulgarian PIT above the contribution cap."
+      }
+    ],
+    "grossDividendExpenses": [
+      {
+        "name": "Dividend withholding tax",
+        "calculation": {
+          "type": "percent",
+          "basis": "grossDividend",
+          "percent": 5
+        },
+        "description": "Bulgarian dividend withholding tax planning assumption."
+      }
+    ]
+  },
+  "optimization": {
+    "grossSalary": {
+      "type": "optimized"
+    },
+    "grossDividend": {
+      "type": "zero"
+    }
+  }
+}

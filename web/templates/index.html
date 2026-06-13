@@ -9,6 +9,253 @@
 <body>
   <main>
     <h1>{{ .AppName }}</h1>
+
+    <h2>Expense configurations</h2>
+
+    {{ range .Expenses }}
+      <section>
+        <h3>{{ .Title }}</h3>
+
+        <table border="1" cellpadding="6" cellspacing="0">
+          <tbody>
+            <tr>
+              <th>Label</th>
+              <td>{{ .Label }}</td>
+            </tr>
+            <tr>
+              <th>Title</th>
+              <td>{{ .Title }}</td>
+            </tr>
+            <tr>
+              <th>Description</th>
+              <td>{{ html .Description }}</td>
+            </tr>
+            <tr>
+              <th>Currency</th>
+              <td>{{ .Currency }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Optimization</h3>
+
+        <table border="1" cellpadding="6" cellspacing="0">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Mode</th>
+              <th>Amount</th>
+              <th>Percent</th>
+              <th>Minimum</th>
+              <th>Maximum</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Objective</td>
+              <td>maximize</td>
+              <td colspan="4">total usable income</td>
+              <td>Net salary plus net dividend.</td>
+            </tr>
+
+            <tr>
+              <td>Gross salary</td>
+              {{ template "ruleCells" .Optimization.GrossSalary }}
+            </tr>
+
+            <tr>
+              <td>Gross dividend</td>
+              {{ template "ruleCells" .Optimization.GrossDividend }}
+            </tr>
+
+            {{ with .Optimization.Minimums }}
+              {{ if .TotalUsableIncome }}
+                <tr>
+                  <td>Minimum total usable income</td>
+                  {{ template "ruleCells" .TotalUsableIncome }}
+                </tr>
+              {{ end }}
+
+              {{ if .GrossSalary }}
+                <tr>
+                  <td>Minimum gross salary</td>
+                  {{ template "ruleCells" .GrossSalary }}
+                </tr>
+              {{ end }}
+
+              {{ if .GrossDividend }}
+                <tr>
+                  <td>Minimum gross dividend</td>
+                  {{ template "ruleCells" .GrossDividend }}
+                </tr>
+              {{ end }}
+
+              {{ if .CompanyProfit }}
+                <tr>
+                  <td>Minimum company profit</td>
+                  {{ template "ruleCells" .CompanyProfit }}
+                </tr>
+              {{ end }}
+
+              {{ if .CompanyTotal }}
+                <tr>
+                  <td>Minimum company total</td>
+                  {{ template "ruleCells" .CompanyTotal }}
+                </tr>
+              {{ end }}
+            {{ end }}
+          </tbody>
+        </table>
+
+        {{ with .Constraints }}
+          <h3>Constraints</h3>
+
+          <table border="1" cellpadding="6" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Constraint</th>
+                <th>Value</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ if .MinimumGrossSalary }}
+                <tr>
+                  <td>Minimum gross salary</td>
+                  <td>
+                    {{ $rule := .MinimumGrossSalary }}
+                    {{ get $rule "type" }}
+                    {{ if has $rule "amount" }} {{ get $rule "amount" }}{{ end }}
+                    {{ if has $rule "percent" }} {{ get $rule "percent" }}%{{ end }}
+                  </td>
+                  <td>Configured external constraint.</td>
+                </tr>
+              {{ end }}
+
+              {{ if .MaximumDividendToSalaryPercent }}
+                <tr>
+                  <td>Maximum dividend / salary</td>
+                  <td>{{ .MaximumDividendToSalaryPercent }}%</td>
+                  <td>Maximum gross dividend relative to gross salary.</td>
+                </tr>
+              {{ end }}
+            </tbody>
+          </table>
+        {{ end }}
+
+        <h3>Expense rows</h3>
+
+        <table border="1" cellpadding="6" cellspacing="0">
+          <thead>
+            <tr>
+              <th>Group</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Basis</th>
+              <th>Amount</th>
+              <th>Percent</th>
+              <th>Cap</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ template "expenseRows" dict "Group" "Company income expenses" "Rows" .ExpenseGroups.CompanyIncomeExpenses }}
+            {{ template "expenseRows" dict "Group" "Company profit expenses" "Rows" .ExpenseGroups.CompanyProfitExpenses }}
+            {{ template "expenseRows" dict "Group" "Gross salary expenses" "Rows" .ExpenseGroups.GrossSalaryExpenses }}
+            {{ template "expenseRows" dict "Group" "Gross dividend expenses" "Rows" .ExpenseGroups.GrossDividendExpenses }}
+          </tbody>
+        </table>
+
+        <h3>Calculation shape</h3>
+
+        <table border="1" cellpadding="6" cellspacing="0">
+          <tbody>
+            <tr>
+              <td>Company income</td>
+              <td>Actual plus expected income.</td>
+            </tr>
+            <tr>
+              <td>- Company income expenses</td>
+              <td>Fixed company costs, income-based costs, gross salary, employer-side salary costs.</td>
+            </tr>
+            <tr>
+              <td>= Company profit</td>
+              <td>Must not become negative. If no explicit minimum is configured, the implicit minimum is 0.</td>
+            </tr>
+            <tr>
+              <td>- Company profit expenses</td>
+              <td>Corporate tax, reserves, profit-based rows.</td>
+            </tr>
+            <tr>
+              <td>= Company total</td>
+              <td>Must not become negative. If no explicit minimum is configured, the implicit minimum is 0.</td>
+            </tr>
+            <tr>
+              <td>Gross salary - gross salary expenses</td>
+              <td>= Net salary.</td>
+            </tr>
+            <tr>
+              <td>Gross dividend - gross dividend expenses</td>
+              <td>= Net dividend.</td>
+            </tr>
+            <tr>
+              <td>Net salary + net dividend</td>
+              <td>= Total usable income. This is the implicit optimizer objective.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <hr>
+      </section>
+    {{ else }}
+      <p>No expense configurations loaded.</p>
+    {{ end }}
   </main>
+
+  {{ define "expenseRows" }}
+    {{ $group := .Group }}
+    {{ range .Rows }}
+      {{ $calc := get . "calculation" }}
+      <tr>
+        <td>{{ $group }}</td>
+        <td>{{ get . "name" }}</td>
+        <td>{{ get $calc "type" }}</td>
+        <td>{{ get $calc "basis" }}</td>
+        <td>{{ if has $calc "amount" }}{{ get $calc "amount" }}{{ end }}</td>
+        <td>{{ if has $calc "percent" }}{{ get $calc "percent" }}%{{ end }}</td>
+        <td>{{ if has $calc "capAmount" }}{{ get $calc "capAmount" }}{{ end }}</td>
+        <td>{{ get . "description" }}</td>
+      </tr>
+    {{ else }}
+      <tr>
+        <td>{{ $group }}</td>
+        <td colspan="7">No rows configured.</td>
+      </tr>
+    {{ end }}
+  {{ end }}
+
+  {{ define "ruleCells" }}
+    <td>{{ get . "type" }}</td>
+    <td>{{ if has . "amount" }}{{ get . "amount" }}{{ end }}</td>
+    <td>{{ if has . "percent" }}{{ get . "percent" }}%{{ end }}</td>
+    <td>
+      {{ if has . "minimum" }}
+        {{ $min := get . "minimum" }}
+        {{ get $min "type" }}
+        {{ if has $min "amount" }} {{ get $min "amount" }}{{ end }}
+        {{ if has $min "percent" }} {{ get $min "percent" }}%{{ end }}
+      {{ end }}
+    </td>
+    <td>
+      {{ if has . "maximum" }}
+        {{ $max := get . "maximum" }}
+        {{ get $max "type" }}
+        {{ if has $max "amount" }} {{ get $max "amount" }}{{ end }}
+        {{ if has $max "percent" }} {{ get $max "percent" }}%{{ end }}
+      {{ end }}
+    </td>
+    <td>{{ get . "description" }}</td>
+  {{ end }}
 </body>
 </html>

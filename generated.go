@@ -193,39 +193,9 @@ func (j *CompanyIncomeOrSalaryPercentCalculation) UnmarshalJSON(value []byte) er
 
 type CompanyProfitExpenseRow interface{}
 
-type CompanyProfitOrSalaryBasis string
-
-const CompanyProfitOrSalaryBasisCompanyProfit CompanyProfitOrSalaryBasis = "companyProfit"
-const CompanyProfitOrSalaryBasisGrossSalary CompanyProfitOrSalaryBasis = "grossSalary"
-
-var enumValues_CompanyProfitOrSalaryBasis = []interface{}{
-	"companyProfit",
-	"grossSalary",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *CompanyProfitOrSalaryBasis) UnmarshalJSON(value []byte) error {
-	var v string
-	if err := json.Unmarshal(value, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_CompanyProfitOrSalaryBasis {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_CompanyProfitOrSalaryBasis, v)
-	}
-	*j = CompanyProfitOrSalaryBasis(v)
-	return nil
-}
-
-type CompanyProfitOrSalaryPercentAboveCapCalculation struct {
+type CompanyProfitPercentAboveCapCalculation struct {
 	// Basis corresponds to the JSON schema field "basis".
-	Basis CompanyProfitOrSalaryBasis `json:"basis" yaml:"basis" mapstructure:"basis"`
+	Basis interface{} `json:"basis" yaml:"basis" mapstructure:"basis"`
 
 	// CapAmount corresponds to the JSON schema field "capAmount".
 	CapAmount NonNegativeMoneyAmount `json:"capAmount" yaml:"capAmount" mapstructure:"capAmount"`
@@ -238,35 +208,35 @@ type CompanyProfitOrSalaryPercentAboveCapCalculation struct {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *CompanyProfitOrSalaryPercentAboveCapCalculation) UnmarshalJSON(value []byte) error {
+func (j *CompanyProfitPercentAboveCapCalculation) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["basis"]; raw != nil && !ok {
-		return fmt.Errorf("field basis in CompanyProfitOrSalaryPercentAboveCapCalculation: required")
+		return fmt.Errorf("field basis in CompanyProfitPercentAboveCapCalculation: required")
 	}
 	if _, ok := raw["capAmount"]; raw != nil && !ok {
-		return fmt.Errorf("field capAmount in CompanyProfitOrSalaryPercentAboveCapCalculation: required")
+		return fmt.Errorf("field capAmount in CompanyProfitPercentAboveCapCalculation: required")
 	}
 	if _, ok := raw["percent"]; raw != nil && !ok {
-		return fmt.Errorf("field percent in CompanyProfitOrSalaryPercentAboveCapCalculation: required")
+		return fmt.Errorf("field percent in CompanyProfitPercentAboveCapCalculation: required")
 	}
 	if _, ok := raw["type"]; raw != nil && !ok {
-		return fmt.Errorf("field type in CompanyProfitOrSalaryPercentAboveCapCalculation: required")
+		return fmt.Errorf("field type in CompanyProfitPercentAboveCapCalculation: required")
 	}
-	type Plain CompanyProfitOrSalaryPercentAboveCapCalculation
+	type Plain CompanyProfitPercentAboveCapCalculation
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
-	*j = CompanyProfitOrSalaryPercentAboveCapCalculation(plain)
+	*j = CompanyProfitPercentAboveCapCalculation(plain)
 	return nil
 }
 
-type CompanyProfitOrSalaryPercentBelowCapCalculation struct {
+type CompanyProfitPercentBelowCapCalculation struct {
 	// Basis corresponds to the JSON schema field "basis".
-	Basis CompanyProfitOrSalaryBasis `json:"basis" yaml:"basis" mapstructure:"basis"`
+	Basis interface{} `json:"basis" yaml:"basis" mapstructure:"basis"`
 
 	// CapAmount corresponds to the JSON schema field "capAmount".
 	CapAmount NonNegativeMoneyAmount `json:"capAmount" yaml:"capAmount" mapstructure:"capAmount"`
@@ -279,35 +249,35 @@ type CompanyProfitOrSalaryPercentBelowCapCalculation struct {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *CompanyProfitOrSalaryPercentBelowCapCalculation) UnmarshalJSON(value []byte) error {
+func (j *CompanyProfitPercentBelowCapCalculation) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["basis"]; raw != nil && !ok {
-		return fmt.Errorf("field basis in CompanyProfitOrSalaryPercentBelowCapCalculation: required")
+		return fmt.Errorf("field basis in CompanyProfitPercentBelowCapCalculation: required")
 	}
 	if _, ok := raw["capAmount"]; raw != nil && !ok {
-		return fmt.Errorf("field capAmount in CompanyProfitOrSalaryPercentBelowCapCalculation: required")
+		return fmt.Errorf("field capAmount in CompanyProfitPercentBelowCapCalculation: required")
 	}
 	if _, ok := raw["percent"]; raw != nil && !ok {
-		return fmt.Errorf("field percent in CompanyProfitOrSalaryPercentBelowCapCalculation: required")
+		return fmt.Errorf("field percent in CompanyProfitPercentBelowCapCalculation: required")
 	}
 	if _, ok := raw["type"]; raw != nil && !ok {
-		return fmt.Errorf("field type in CompanyProfitOrSalaryPercentBelowCapCalculation: required")
+		return fmt.Errorf("field type in CompanyProfitPercentBelowCapCalculation: required")
 	}
-	type Plain CompanyProfitOrSalaryPercentBelowCapCalculation
+	type Plain CompanyProfitPercentBelowCapCalculation
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
-	*j = CompanyProfitOrSalaryPercentBelowCapCalculation(plain)
+	*j = CompanyProfitPercentBelowCapCalculation(plain)
 	return nil
 }
 
-type CompanyProfitOrSalaryPercentCalculation struct {
+type CompanyProfitPercentCalculation struct {
 	// Basis corresponds to the JSON schema field "basis".
-	Basis CompanyProfitOrSalaryBasis `json:"basis" yaml:"basis" mapstructure:"basis"`
+	Basis interface{} `json:"basis" yaml:"basis" mapstructure:"basis"`
 
 	// Percent corresponds to the JSON schema field "percent".
 	Percent Percentage `json:"percent" yaml:"percent" mapstructure:"percent"`
@@ -317,134 +287,104 @@ type CompanyProfitOrSalaryPercentCalculation struct {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *CompanyProfitOrSalaryPercentCalculation) UnmarshalJSON(value []byte) error {
+func (j *CompanyProfitPercentCalculation) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["basis"]; raw != nil && !ok {
-		return fmt.Errorf("field basis in CompanyProfitOrSalaryPercentCalculation: required")
+		return fmt.Errorf("field basis in CompanyProfitPercentCalculation: required")
 	}
 	if _, ok := raw["percent"]; raw != nil && !ok {
-		return fmt.Errorf("field percent in CompanyProfitOrSalaryPercentCalculation: required")
+		return fmt.Errorf("field percent in CompanyProfitPercentCalculation: required")
 	}
 	if _, ok := raw["type"]; raw != nil && !ok {
-		return fmt.Errorf("field type in CompanyProfitOrSalaryPercentCalculation: required")
+		return fmt.Errorf("field type in CompanyProfitPercentCalculation: required")
 	}
-	type Plain CompanyProfitOrSalaryPercentCalculation
+	type Plain CompanyProfitPercentCalculation
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
-	*j = CompanyProfitOrSalaryPercentCalculation(plain)
+	*j = CompanyProfitPercentCalculation(plain)
 	return nil
 }
 
-// Configuration schema for the expense, salary/dividend, and one-target
-// optimization model used by Income Atlas. The model is intentionally
-// spreadsheet-like: company income is calculated elsewhere, then configurable
-// expense rows are applied in four ordered groups. The final optimization target
-// is normally total usable income, which is net salary plus net dividend. This
-// schema is restrictive about allowed calculation modes, percentages, and
-// non-negative money amounts, while still allowing freely named rows and
-// country-specific combinations.
+// Configuration schema for the expense and salary/dividend model used by Income
+// Atlas. Each configuration includes UI metadata plus spreadsheet-like calculation
+// rules. Company income is calculated elsewhere, then configurable rows are
+// applied in four ordered groups. The configuration describes assumptions; it does
+// not configure the search algorithm. The application optimizer always maximizes
+// totalUsableIncome = netSalary + netDividend. Both grossSalary and grossDividend
+// may be fixed, zero, residual, percent-based, or optimized. companyProfit and
+// companyTotal are implicit non-negative invariants: if no explicit minimum is
+// configured, their minimum is 0.
 type ExpensesSchemaJson struct {
-	// Hard constraints checked after each candidate calculation. Constraints should
-	// invalidate a candidate, not change its computed values.
-	Constraints ExpensesSchemaJsonConstraints `json:"constraints" yaml:"constraints" mapstructure:"constraints"`
+	// Optional schema reference in configuration documents.
+	Schema *string `json:"$schema,omitempty,omitzero" yaml:"$schema,omitempty" mapstructure:"$schema,omitempty"`
 
-	// Main currency for all fixed amounts in this configuration. Use an ISO 4217
-	// currency code. The schema only validates the shape, not whether the code
-	// exists.
+	// Optional hard constraints. Omitted constraints are disabled.
+	Constraints *ExpensesSchemaJsonConstraints `json:"constraints,omitempty,omitzero" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
+
+	// Main currency for fixed amounts. Use ISO 4217 such as EUR, BGN, RON, CHF.
 	Currency string `json:"currency" yaml:"currency" mapstructure:"currency"`
 
-	// The four ordered groups of expenses/deductions used by the model. Each group
-	// contains freely named rows. The row's calculation type determines how the
-	// amount is calculated. The same row shape is used everywhere, but each group
-	// only allows basis values that make sense for that group.
+	// Human-readable explanatory text shown below the title. May contain trusted HTML
+	// if the application chooses to render it as HTML; schema validation only treats
+	// it as a string.
+	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// The four ordered groups used by the model. Rows are freely named; each row
+	// declares a calculation type and basis.
 	ExpenseGroups ExpensesSchemaJsonExpenseGroups `json:"expenseGroups" yaml:"expenseGroups" mapstructure:"expenseGroups"`
 
-	// One-target optimization configuration. Only one main target may be optimized at
-	// once. All other values should be fixed, residual, minimums, maximums, or
-	// constraints. The normal target is 'totalUsableIncome', meaning net salary plus
-	// net dividend.
+	// Short UI label for selecting this configuration, for example a tab label or
+	// dropdown label. Keep this concise.
+	Label string `json:"label" yaml:"label" mapstructure:"label"`
+
+	// Defines how gross salary and gross dividend are determined. The objective is
+	// not configurable: the application maximizes totalUsableIncome = netSalary +
+	// netDividend whenever one or both gross amounts are optimized. If neither gross
+	// amount is optimized, the configuration is just evaluated as a calculation. The
+	// search strategy, candidate generation, cap probing, refinement, and caching are
+	// application concerns, not schema fields.
 	Optimization ExpensesSchemaJsonOptimization `json:"optimization" yaml:"optimization" mapstructure:"optimization"`
 
-	// Version of this settings document. This is not the JSON Schema version; it is
-	// the application configuration version. Use a semantic or date-like version such
-	// as '1.0.0'.
-	Version string `json:"version" yaml:"version" mapstructure:"version"`
+	// Human-readable title shown as the main heading for this configuration.
+	Title string `json:"title" yaml:"title" mapstructure:"title"`
 }
 
-// Hard constraints checked after each candidate calculation. Constraints should
-// invalidate a candidate, not change its computed values.
+// Optional hard constraints. Omitted constraints are disabled.
 type ExpensesSchemaJsonConstraints struct {
-	// Maximum gross dividend relative to gross salary. This is useful for
-	// countries/profiles where excessive dividends compared to salary are restricted
-	// or risky. Example: 10 means gross dividend may not exceed 10% of gross salary.
-	// Use mode 'disabled' if no such restriction exists. When gross salary is zero
-	// and this constraint is enabled, the application should treat any positive
-	// dividend as invalid unless it explicitly implements another fallback rule.
-	MaximumDividendToSalaryPercent interface{} `json:"maximumDividendToSalaryPercent" yaml:"maximumDividendToSalaryPercent" mapstructure:"maximumDividendToSalaryPercent"`
+	// Optional maximum gross dividend as percent of gross salary. Omitted means
+	// disabled. Example: 10 means gross dividend may not exceed 10% of gross salary.
+	MaximumDividendToSalaryPercent *Percentage `json:"maximumDividendToSalaryPercent,omitempty,omitzero" yaml:"maximumDividendToSalaryPercent,omitempty" mapstructure:"maximumDividendToSalaryPercent,omitempty"`
 
-	// Minimum gross salary constraint. Use mode 'fixed' for a hard minimum salary
-	// amount. Use mode 'percentOfCompanyIncome' if the minimum salary should be
-	// derived from company income. Use mode 'disabled' if there is no minimum salary
-	// constraint.
-	MinimumGrossSalary MinimumRule `json:"minimumGrossSalary" yaml:"minimumGrossSalary" mapstructure:"minimumGrossSalary"`
+	// Optional lower bound for gross salary. Useful for immigration, legal, or
+	// practical minimum salary assumptions.
+	MinimumGrossSalary MinimumRule `json:"minimumGrossSalary,omitempty,omitzero" yaml:"minimumGrossSalary,omitempty" mapstructure:"minimumGrossSalary,omitempty"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ExpensesSchemaJsonConstraints) UnmarshalJSON(value []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(value, &raw); err != nil {
-		return err
-	}
-	if _, ok := raw["maximumDividendToSalaryPercent"]; raw != nil && !ok {
-		return fmt.Errorf("field maximumDividendToSalaryPercent in ExpensesSchemaJsonConstraints: required")
-	}
-	if _, ok := raw["minimumGrossSalary"]; raw != nil && !ok {
-		return fmt.Errorf("field minimumGrossSalary in ExpensesSchemaJsonConstraints: required")
-	}
-	type Plain ExpensesSchemaJsonConstraints
-	var plain Plain
-	if err := json.Unmarshal(value, &plain); err != nil {
-		return err
-	}
-	*j = ExpensesSchemaJsonConstraints(plain)
-	return nil
-}
-
-// The four ordered groups of expenses/deductions used by the model. Each group
-// contains freely named rows. The row's calculation type determines how the amount
-// is calculated. The same row shape is used everywhere, but each group only allows
-// basis values that make sense for that group.
+// The four ordered groups used by the model. Rows are freely named; each row
+// declares a calculation type and basis.
 type ExpensesSchemaJsonExpenseGroups struct {
-	// Pre-profit company-side expenses. These are subtracted from company income
-	// before company profit is calculated. Typical examples: fixed monthly costs,
-	// fixed yearly costs, percentage of company income, gross salary itself, and
-	// employer-side salary costs based on gross salary. Employee-side salary
-	// deductions do not belong here.
+	// Pre-profit company-side rows. Subtracted from company income before company
+	// profit is calculated. Typical rows: fixed business costs, percentage of income,
+	// gross-salary-related employer costs.
 	CompanyIncomeExpenses []CompanyIncomeExpenseRow `json:"companyIncomeExpenses" yaml:"companyIncomeExpenses" mapstructure:"companyIncomeExpenses"`
 
-	// Profit-level company-side expenses. These are subtracted from company profit to
-	// calculate company total before/after dividend logic. Typical examples:
-	// corporate profit tax, forced company reserve based on profit, fixed
-	// profit-level charges, or a gross salary row if a country/profile intentionally
-	// models a salary-like value at this stage. In the usual model, gross salary
-	// belongs in companyIncomeExpenses, not here.
+	// Profit-level company rows. Subtracted from company profit. Typical rows:
+	// corporate income tax, forced reserve based on profit.
 	CompanyProfitExpenses []CompanyProfitExpenseRow `json:"companyProfitExpenses" yaml:"companyProfitExpenses" mapstructure:"companyProfitExpenses"`
 
-	// Personal deductions from gross dividend. These rows reduce gross dividend to
-	// net dividend. Typical examples: dividend tax and dividend-related health/social
-	// contributions.
+	// Personal deductions from gross dividend. These reduce gross dividend to net
+	// dividend. Typical rows: dividend withholding tax and dividend-related
+	// health/social charges.
 	GrossDividendExpenses []GrossDividendExpenseRow `json:"grossDividendExpenses" yaml:"grossDividendExpenses" mapstructure:"grossDividendExpenses"`
 
-	// Personal deductions from gross salary. These rows reduce gross salary to net
-	// salary. Typical examples: employee-side social contributions, employee-side
-	// health insurance, and salary income tax. Employer-side salary costs do not
-	// belong here because they are company expenses, not deductions from the
-	// employee's gross salary.
+	// Personal deductions from gross salary. These reduce gross salary to net salary.
+	// Typical rows: employee social contributions, employee health insurance, salary
+	// income tax.
 	GrossSalaryExpenses []GrossSalaryExpenseRow `json:"grossSalaryExpenses" yaml:"grossSalaryExpenses" mapstructure:"grossSalaryExpenses"`
 }
 
@@ -487,193 +427,43 @@ func (j *ExpensesSchemaJsonExpenseGroups) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// One-target optimization configuration. Only one main target may be optimized at
-// once. All other values should be fixed, residual, minimums, maximums, or
-// constraints. The normal target is 'totalUsableIncome', meaning net salary plus
-// net dividend.
+// Defines how gross salary and gross dividend are determined. The objective is not
+// configurable: the application maximizes totalUsableIncome = netSalary +
+// netDividend whenever one or both gross amounts are optimized. If neither gross
+// amount is optimized, the configuration is just evaluated as a calculation. The
+// search strategy, candidate generation, cap probing, refinement, and caching are
+// application concerns, not schema fields.
 type ExpensesSchemaJsonOptimization struct {
-	// How gross dividend should be handled. 'residual' means dividend is derived from
-	// remaining company money after company expenses, profit expenses, and required
-	// company total. This is the recommended default because it avoids invalid
-	// salary/dividend combinations. 'fixed' means the value is supplied elsewhere.
-	// 'optimized' means the optimizer may vary it directly. 'zero' disables
-	// dividends.
-	GrossDividendMode ExpensesSchemaJsonOptimizationGrossDividendMode `json:"grossDividendMode,omitempty,omitzero" yaml:"grossDividendMode,omitempty" mapstructure:"grossDividendMode,omitempty"`
-
-	// The single value the optimizer should maximize. Use 'totalUsableIncome' for the
-	// usual goal: maximize net salary plus net dividend. 'grossDividend',
-	// 'grossSalary', and 'companyTotal' are supported for scenario exploration, but
-	// they are not normally the economic target.
-	MainTarget ExpensesSchemaJsonOptimizationMainTarget `json:"mainTarget" yaml:"mainTarget" mapstructure:"mainTarget"`
-
-	// Optional lower bounds for optimization outputs. These are constraints, not
-	// targets. Each minimum can be disabled, fixed, or expressed as a percentage of
-	// company income. For example, companyTotal can be required to stay at least 10%
-	// of company income, while grossSalary can have a fixed minimum.
-	Minimums ExpensesSchemaJsonOptimizationMinimums `json:"minimums" yaml:"minimums" mapstructure:"minimums"`
-
-	// Optional search settings for a simple scenario/enumeration optimizer. This does
-	// not define tax logic; it only controls how candidate gross salaries are
-	// generated. A small step gives more precision but more calculations. Explicit
-	// candidate points are useful for caps and thresholds where the optimum often
-	// sits.
-	SalarySearch *ExpensesSchemaJsonOptimizationSalarySearch `json:"salarySearch,omitempty,omitzero" yaml:"salarySearch,omitempty" mapstructure:"salarySearch,omitempty"`
-}
-
-type ExpensesSchemaJsonOptimizationGrossDividendMode string
-
-const ExpensesSchemaJsonOptimizationGrossDividendModeFixed ExpensesSchemaJsonOptimizationGrossDividendMode = "fixed"
-const ExpensesSchemaJsonOptimizationGrossDividendModeOptimized ExpensesSchemaJsonOptimizationGrossDividendMode = "optimized"
-const ExpensesSchemaJsonOptimizationGrossDividendModeResidual ExpensesSchemaJsonOptimizationGrossDividendMode = "residual"
-const ExpensesSchemaJsonOptimizationGrossDividendModeZero ExpensesSchemaJsonOptimizationGrossDividendMode = "zero"
-
-var enumValues_ExpensesSchemaJsonOptimizationGrossDividendMode = []interface{}{
-	"residual",
-	"fixed",
-	"optimized",
-	"zero",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ExpensesSchemaJsonOptimizationGrossDividendMode) UnmarshalJSON(value []byte) error {
-	var v string
-	if err := json.Unmarshal(value, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_ExpensesSchemaJsonOptimizationGrossDividendMode {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ExpensesSchemaJsonOptimizationGrossDividendMode, v)
-	}
-	*j = ExpensesSchemaJsonOptimizationGrossDividendMode(v)
-	return nil
-}
-
-type ExpensesSchemaJsonOptimizationMainTarget string
-
-const ExpensesSchemaJsonOptimizationMainTargetCompanyTotal ExpensesSchemaJsonOptimizationMainTarget = "companyTotal"
-const ExpensesSchemaJsonOptimizationMainTargetGrossDividend ExpensesSchemaJsonOptimizationMainTarget = "grossDividend"
-const ExpensesSchemaJsonOptimizationMainTargetGrossSalary ExpensesSchemaJsonOptimizationMainTarget = "grossSalary"
-const ExpensesSchemaJsonOptimizationMainTargetTotalUsableIncome ExpensesSchemaJsonOptimizationMainTarget = "totalUsableIncome"
-
-var enumValues_ExpensesSchemaJsonOptimizationMainTarget = []interface{}{
-	"totalUsableIncome",
-	"grossDividend",
-	"grossSalary",
-	"companyTotal",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ExpensesSchemaJsonOptimizationMainTarget) UnmarshalJSON(value []byte) error {
-	var v string
-	if err := json.Unmarshal(value, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_ExpensesSchemaJsonOptimizationMainTarget {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ExpensesSchemaJsonOptimizationMainTarget, v)
-	}
-	*j = ExpensesSchemaJsonOptimizationMainTarget(v)
-	return nil
-}
-
-// Optional lower bounds for optimization outputs. These are constraints, not
-// targets. Each minimum can be disabled, fixed, or expressed as a percentage of
-// company income. For example, companyTotal can be required to stay at least 10%
-// of company income, while grossSalary can have a fixed minimum.
-type ExpensesSchemaJsonOptimizationMinimums struct {
-	// CompanyTotal corresponds to the JSON schema field "companyTotal".
-	CompanyTotal MinimumRule `json:"companyTotal" yaml:"companyTotal" mapstructure:"companyTotal"`
-
 	// GrossDividend corresponds to the JSON schema field "grossDividend".
-	GrossDividend MinimumRule `json:"grossDividend" yaml:"grossDividend" mapstructure:"grossDividend"`
+	GrossDividend GrossDividendRule `json:"grossDividend" yaml:"grossDividend" mapstructure:"grossDividend"`
 
 	// GrossSalary corresponds to the JSON schema field "grossSalary".
-	GrossSalary MinimumRule `json:"grossSalary" yaml:"grossSalary" mapstructure:"grossSalary"`
+	GrossSalary GrossSalaryRule `json:"grossSalary" yaml:"grossSalary" mapstructure:"grossSalary"`
+
+	// Optional minimum result constraints. Omitted minimums are disabled, except
+	// companyProfit and companyTotal: these are special model invariants with an
+	// implicit minimum of 0. These are lower bounds, not optimization targets.
+	Minimums *ExpensesSchemaJsonOptimizationMinimums `json:"minimums,omitempty,omitzero" yaml:"minimums,omitempty" mapstructure:"minimums,omitempty"`
+}
+
+// Optional minimum result constraints. Omitted minimums are disabled, except
+// companyProfit and companyTotal: these are special model invariants with an
+// implicit minimum of 0. These are lower bounds, not optimization targets.
+type ExpensesSchemaJsonOptimizationMinimums struct {
+	// CompanyProfit corresponds to the JSON schema field "companyProfit".
+	CompanyProfit MinimumRule `json:"companyProfit,omitempty,omitzero" yaml:"companyProfit,omitempty" mapstructure:"companyProfit,omitempty"`
+
+	// CompanyTotal corresponds to the JSON schema field "companyTotal".
+	CompanyTotal MinimumRule `json:"companyTotal,omitempty,omitzero" yaml:"companyTotal,omitempty" mapstructure:"companyTotal,omitempty"`
+
+	// GrossDividend corresponds to the JSON schema field "grossDividend".
+	GrossDividend MinimumRule `json:"grossDividend,omitempty,omitzero" yaml:"grossDividend,omitempty" mapstructure:"grossDividend,omitempty"`
+
+	// GrossSalary corresponds to the JSON schema field "grossSalary".
+	GrossSalary MinimumRule `json:"grossSalary,omitempty,omitzero" yaml:"grossSalary,omitempty" mapstructure:"grossSalary,omitempty"`
 
 	// TotalUsableIncome corresponds to the JSON schema field "totalUsableIncome".
-	TotalUsableIncome MinimumRule `json:"totalUsableIncome" yaml:"totalUsableIncome" mapstructure:"totalUsableIncome"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ExpensesSchemaJsonOptimizationMinimums) UnmarshalJSON(value []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(value, &raw); err != nil {
-		return err
-	}
-	if _, ok := raw["companyTotal"]; raw != nil && !ok {
-		return fmt.Errorf("field companyTotal in ExpensesSchemaJsonOptimizationMinimums: required")
-	}
-	if _, ok := raw["grossDividend"]; raw != nil && !ok {
-		return fmt.Errorf("field grossDividend in ExpensesSchemaJsonOptimizationMinimums: required")
-	}
-	if _, ok := raw["grossSalary"]; raw != nil && !ok {
-		return fmt.Errorf("field grossSalary in ExpensesSchemaJsonOptimizationMinimums: required")
-	}
-	if _, ok := raw["totalUsableIncome"]; raw != nil && !ok {
-		return fmt.Errorf("field totalUsableIncome in ExpensesSchemaJsonOptimizationMinimums: required")
-	}
-	type Plain ExpensesSchemaJsonOptimizationMinimums
-	var plain Plain
-	if err := json.Unmarshal(value, &plain); err != nil {
-		return err
-	}
-	*j = ExpensesSchemaJsonOptimizationMinimums(plain)
-	return nil
-}
-
-// Optional search settings for a simple scenario/enumeration optimizer. This does
-// not define tax logic; it only controls how candidate gross salaries are
-// generated. A small step gives more precision but more calculations. Explicit
-// candidate points are useful for caps and thresholds where the optimum often
-// sits.
-type ExpensesSchemaJsonOptimizationSalarySearch struct {
-	// Whether the optimizer may vary gross salary. If false, the application should
-	// use whatever gross salary is provided elsewhere.
-	Enabled bool `json:"enabled,omitempty,omitzero" yaml:"enabled,omitempty" mapstructure:"enabled,omitempty"`
-
-	// Additional gross salary candidates that should always be tested, such as 0,
-	// minimum salary, contribution caps, or legal threshold values. Values must be
-	// non-negative.
-	ExplicitCandidateAmounts []NonNegativeMoneyAmount `json:"explicitCandidateAmounts,omitempty,omitzero" yaml:"explicitCandidateAmounts,omitempty" mapstructure:"explicitCandidateAmounts,omitempty"`
-
-	// Increment used when enumerating candidate gross salaries. Example: 50 or 100.
-	// The schema allows zero because some applications may ignore this field when
-	// explicit candidate points are used, but a practical optimizer should use a
-	// positive value.
-	StepAmount *NonNegativeMoneyAmount `json:"stepAmount,omitempty,omitzero" yaml:"stepAmount,omitempty" mapstructure:"stepAmount,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ExpensesSchemaJsonOptimizationSalarySearch) UnmarshalJSON(value []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(value, &raw); err != nil {
-		return err
-	}
-	type Plain ExpensesSchemaJsonOptimizationSalarySearch
-	var plain Plain
-	if err := json.Unmarshal(value, &plain); err != nil {
-		return err
-	}
-	if v, ok := raw["enabled"]; !ok || v == nil {
-		plain.Enabled = true
-	}
-	if v, ok := raw["explicitCandidateAmounts"]; !ok || v == nil {
-		plain.ExplicitCandidateAmounts = []NonNegativeMoneyAmount{}
-	}
-	*j = ExpensesSchemaJsonOptimizationSalarySearch(plain)
-	return nil
+	TotalUsableIncome MinimumRule `json:"totalUsableIncome,omitempty,omitzero" yaml:"totalUsableIncome,omitempty" mapstructure:"totalUsableIncome,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -682,22 +472,16 @@ func (j *ExpensesSchemaJsonOptimization) UnmarshalJSON(value []byte) error {
 	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
-	if _, ok := raw["mainTarget"]; raw != nil && !ok {
-		return fmt.Errorf("field mainTarget in ExpensesSchemaJsonOptimization: required")
+	if _, ok := raw["grossDividend"]; raw != nil && !ok {
+		return fmt.Errorf("field grossDividend in ExpensesSchemaJsonOptimization: required")
 	}
-	if _, ok := raw["minimums"]; raw != nil && !ok {
-		return fmt.Errorf("field minimums in ExpensesSchemaJsonOptimization: required")
+	if _, ok := raw["grossSalary"]; raw != nil && !ok {
+		return fmt.Errorf("field grossSalary in ExpensesSchemaJsonOptimization: required")
 	}
 	type Plain ExpensesSchemaJsonOptimization
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
-	}
-	if v, ok := raw["grossDividendMode"]; !ok || v == nil {
-		plain.GrossDividendMode = "residual"
-	}
-	if v, ok := raw["mainTarget"]; !ok || v == nil {
-		plain.MainTarget = "totalUsableIncome"
 	}
 	*j = ExpensesSchemaJsonOptimization(plain)
 	return nil
@@ -709,20 +493,23 @@ func (j *ExpensesSchemaJson) UnmarshalJSON(value []byte) error {
 	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
-	if _, ok := raw["constraints"]; raw != nil && !ok {
-		return fmt.Errorf("field constraints in ExpensesSchemaJson: required")
-	}
 	if _, ok := raw["currency"]; raw != nil && !ok {
 		return fmt.Errorf("field currency in ExpensesSchemaJson: required")
+	}
+	if _, ok := raw["description"]; raw != nil && !ok {
+		return fmt.Errorf("field description in ExpensesSchemaJson: required")
 	}
 	if _, ok := raw["expenseGroups"]; raw != nil && !ok {
 		return fmt.Errorf("field expenseGroups in ExpensesSchemaJson: required")
 	}
+	if _, ok := raw["label"]; raw != nil && !ok {
+		return fmt.Errorf("field label in ExpensesSchemaJson: required")
+	}
 	if _, ok := raw["optimization"]; raw != nil && !ok {
 		return fmt.Errorf("field optimization in ExpensesSchemaJson: required")
 	}
-	if _, ok := raw["version"]; raw != nil && !ok {
-		return fmt.Errorf("field version in ExpensesSchemaJson: required")
+	if _, ok := raw["title"]; raw != nil && !ok {
+		return fmt.Errorf("field title in ExpensesSchemaJson: required")
 	}
 	type Plain ExpensesSchemaJson
 	var plain Plain
@@ -732,15 +519,25 @@ func (j *ExpensesSchemaJson) UnmarshalJSON(value []byte) error {
 	if matched, _ := regexp.MatchString(`^[A-Z]{3}$`, string(plain.Currency)); !matched {
 		return fmt.Errorf("field %s pattern match: must match %s", "Currency", `^[A-Z]{3}$`)
 	}
-	if utf8.RuneCountInString(string(plain.Version)) < 1 {
-		return fmt.Errorf("field %s length: must be >= %d", "version", 1)
+	if utf8.RuneCountInString(string(plain.Description)) > 8000 {
+		return fmt.Errorf("field %s length: must be <= %d", "description", 8000)
+	}
+	if utf8.RuneCountInString(string(plain.Label)) < 1 {
+		return fmt.Errorf("field %s length: must be >= %d", "label", 1)
+	}
+	if utf8.RuneCountInString(string(plain.Label)) > 80 {
+		return fmt.Errorf("field %s length: must be <= %d", "label", 80)
+	}
+	if utf8.RuneCountInString(string(plain.Title)) < 1 {
+		return fmt.Errorf("field %s length: must be >= %d", "title", 1)
+	}
+	if utf8.RuneCountInString(string(plain.Title)) > 160 {
+		return fmt.Errorf("field %s length: must be <= %d", "title", 160)
 	}
 	*j = ExpensesSchemaJson(plain)
 	return nil
 }
 
-// Fixed monthly amount. Example: accounting fee, office rent, hosting subscription
-// charged monthly.
 type FixMonthCalculation struct {
 	// Amount corresponds to the JSON schema field "amount".
 	Amount NonNegativeMoneyAmount `json:"amount" yaml:"amount" mapstructure:"amount"`
@@ -770,8 +567,6 @@ func (j *FixMonthCalculation) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// Fixed yearly amount. Example: annual hosting, annual chamber fee, yearly reserve
-// amount. The application decides how to allocate this to month/year views.
 type FixYearCalculation struct {
 	// Amount corresponds to the JSON schema field "amount".
 	Amount NonNegativeMoneyAmount `json:"amount" yaml:"amount" mapstructure:"amount"`
@@ -801,33 +596,145 @@ func (j *FixYearCalculation) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-type Frequency string
+type GrossAmountFixedRule struct {
+	// Amount corresponds to the JSON schema field "amount".
+	Amount NonNegativeMoneyAmount `json:"amount" yaml:"amount" mapstructure:"amount"`
 
-const FrequencyMonth Frequency = "month"
-const FrequencyYear Frequency = "year"
-
-var enumValues_Frequency = []interface{}{
-	"month",
-	"year",
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *Frequency) UnmarshalJSON(value []byte) error {
-	var v string
-	if err := json.Unmarshal(value, &v); err != nil {
+func (j *GrossAmountFixedRule) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
-	var ok bool
-	for _, expected := range enumValues_Frequency {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
+	if _, ok := raw["amount"]; raw != nil && !ok {
+		return fmt.Errorf("field amount in GrossAmountFixedRule: required")
 	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_Frequency, v)
+	if _, ok := raw["type"]; raw != nil && !ok {
+		return fmt.Errorf("field type in GrossAmountFixedRule: required")
 	}
-	*j = Frequency(v)
+	type Plain GrossAmountFixedRule
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = GrossAmountFixedRule(plain)
+	return nil
+}
+
+type GrossAmountOptimizedRule struct {
+	// Maximum corresponds to the JSON schema field "maximum".
+	Maximum MinimumRule `json:"maximum,omitempty,omitzero" yaml:"maximum,omitempty" mapstructure:"maximum,omitempty"`
+
+	// Minimum corresponds to the JSON schema field "minimum".
+	Minimum MinimumRule `json:"minimum,omitempty,omitzero" yaml:"minimum,omitempty" mapstructure:"minimum,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *GrossAmountOptimizedRule) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["type"]; raw != nil && !ok {
+		return fmt.Errorf("field type in GrossAmountOptimizedRule: required")
+	}
+	type Plain GrossAmountOptimizedRule
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = GrossAmountOptimizedRule(plain)
+	return nil
+}
+
+type GrossAmountPercentOfCompanyIncomeRule struct {
+	// Percent corresponds to the JSON schema field "percent".
+	Percent Percentage `json:"percent" yaml:"percent" mapstructure:"percent"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *GrossAmountPercentOfCompanyIncomeRule) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["percent"]; raw != nil && !ok {
+		return fmt.Errorf("field percent in GrossAmountPercentOfCompanyIncomeRule: required")
+	}
+	if _, ok := raw["type"]; raw != nil && !ok {
+		return fmt.Errorf("field type in GrossAmountPercentOfCompanyIncomeRule: required")
+	}
+	type Plain GrossAmountPercentOfCompanyIncomeRule
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = GrossAmountPercentOfCompanyIncomeRule(plain)
+	return nil
+}
+
+// Use the remaining available amount after earlier calculation stages and
+// invariants are applied. Application logic defines the exact residual direction
+// for salary or dividend.
+type GrossAmountResidualRule struct {
+	// Description corresponds to the JSON schema field "description".
+	Description *string `json:"description,omitempty,omitzero" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *GrossAmountResidualRule) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["type"]; raw != nil && !ok {
+		return fmt.Errorf("field type in GrossAmountResidualRule: required")
+	}
+	type Plain GrossAmountResidualRule
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if plain.Description != nil && utf8.RuneCountInString(string(*plain.Description)) > 1000 {
+		return fmt.Errorf("field %s length: must be <= %d", "description", 1000)
+	}
+	*j = GrossAmountResidualRule(plain)
+	return nil
+}
+
+type GrossAmountZeroRule struct {
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *GrossAmountZeroRule) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["type"]; raw != nil && !ok {
+		return fmt.Errorf("field type in GrossAmountZeroRule: required")
+	}
+	type Plain GrossAmountZeroRule
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = GrossAmountZeroRule(plain)
 	return nil
 }
 
@@ -950,6 +857,8 @@ func (j *GrossDividendPercentCalculation) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
+type GrossDividendRule interface{}
+
 type GrossSalaryExpenseRow interface{}
 
 type GrossSalaryPercentAboveCapCalculation struct {
@@ -1069,46 +978,69 @@ func (j *GrossSalaryPercentCalculation) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// A lower-bound rule. 'disabled' means no minimum. 'fixed' means a non-negative
-// fixed amount. 'percentOfCompanyIncome' means a percentage of company income.
-// This is intended for constraints and optimization minimums, not for ordinary
-// expense rows.
-type MinimumRule interface{}
+type GrossSalaryRule interface{}
 
-type MinimumRuleMode string
+type MinimumFixedRule struct {
+	// Amount corresponds to the JSON schema field "amount".
+	Amount NonNegativeMoneyAmount `json:"amount" yaml:"amount" mapstructure:"amount"`
 
-const MinimumRuleModeDisabled MinimumRuleMode = "disabled"
-const MinimumRuleModeFixed MinimumRuleMode = "fixed"
-const MinimumRuleModePercentOfCompanyIncome MinimumRuleMode = "percentOfCompanyIncome"
-
-var enumValues_MinimumRuleMode = []interface{}{
-	"disabled",
-	"fixed",
-	"percentOfCompanyIncome",
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *MinimumRuleMode) UnmarshalJSON(value []byte) error {
-	var v string
-	if err := json.Unmarshal(value, &v); err != nil {
+func (j *MinimumFixedRule) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
-	var ok bool
-	for _, expected := range enumValues_MinimumRuleMode {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
+	if _, ok := raw["amount"]; raw != nil && !ok {
+		return fmt.Errorf("field amount in MinimumFixedRule: required")
 	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_MinimumRuleMode, v)
+	if _, ok := raw["type"]; raw != nil && !ok {
+		return fmt.Errorf("field type in MinimumFixedRule: required")
 	}
-	*j = MinimumRuleMode(v)
+	type Plain MinimumFixedRule
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = MinimumFixedRule(plain)
 	return nil
 }
 
-// Human-readable row name. Names are free-form so country-specific rows can be
-// modeled without code changes.
+type MinimumPercentOfCompanyIncomeRule struct {
+	// Percent corresponds to the JSON schema field "percent".
+	Percent Percentage `json:"percent" yaml:"percent" mapstructure:"percent"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *MinimumPercentOfCompanyIncomeRule) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["percent"]; raw != nil && !ok {
+		return fmt.Errorf("field percent in MinimumPercentOfCompanyIncomeRule: required")
+	}
+	if _, ok := raw["type"]; raw != nil && !ok {
+		return fmt.Errorf("field type in MinimumPercentOfCompanyIncomeRule: required")
+	}
+	type Plain MinimumPercentOfCompanyIncomeRule
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = MinimumPercentOfCompanyIncomeRule(plain)
+	return nil
+}
+
+type MinimumRule interface{}
+
+// Human-readable row name. Names are free-form.
 type NonEmptyName string
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -1128,7 +1060,7 @@ func (j *NonEmptyName) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// A non-negative money amount in the configuration currency.
+// Non-negative money amount in the configuration currency.
 type NonNegativeMoneyAmount float64
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -1145,9 +1077,6 @@ func (j *NonNegativeMoneyAmount) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// Percentage applied only to the part of the basis above the cap. Example: 10% of
-// salary above a social-contribution cap. If the basis is 5,000 and the cap is
-// 2,000, this row applies to 3,000.
 type PercentAboveCapCalculation struct {
 	// Basis corresponds to the JSON schema field "basis".
 	Basis Basis `json:"basis" yaml:"basis" mapstructure:"basis"`
@@ -1189,9 +1118,6 @@ func (j *PercentAboveCapCalculation) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// Percentage applied only to the part of the basis up to the cap. Example: 20% of
-// salary below a social-contribution cap. If the basis is 5,000 and the cap is
-// 2,000, this row applies to 2,000.
 type PercentBelowCapCalculation struct {
 	// Basis corresponds to the JSON schema field "basis".
 	Basis Basis `json:"basis" yaml:"basis" mapstructure:"basis"`
@@ -1233,9 +1159,6 @@ func (j *PercentBelowCapCalculation) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// Simple percentage of a basis. Example: 10% of company profit for corporate tax,
-// 5% of gross dividend for dividend tax, or 10% of company income for a company
-// reserve.
 type PercentCalculation struct {
 	// Basis corresponds to the JSON schema field "basis".
 	Basis Basis `json:"basis" yaml:"basis" mapstructure:"basis"`
@@ -1271,7 +1194,7 @@ func (j *PercentCalculation) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// Percentage value between 0 and 100. Use 10 for 10%, not 0.10.
+// Percentage between 0 and 100. Use 10 for 10%, not 0.10.
 type Percentage float64
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -1291,7 +1214,7 @@ func (j *Percentage) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// A positive money amount in the configuration currency.
+// Positive money amount in the configuration currency.
 type PositiveMoneyAmount float64
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -1308,43 +1231,30 @@ func (j *PositiveMoneyAmount) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-type RowBaseCommon struct {
-	// The calculation used for this row. Exactly one shape is selected by the 'type'
-	// field. Fixed rows require an amount and a frequency. Percentage rows require a
-	// basis and a rate. Below-cap and above-cap percentage rows additionally require
-	// a cap amount.
-	Calculation RowBaseCommonCalculation `json:"calculation" yaml:"calculation" mapstructure:"calculation"`
+type RowCommon struct {
+	// Calculation corresponds to the JSON schema field "calculation".
+	Calculation interface{} `json:"calculation" yaml:"calculation" mapstructure:"calculation"`
 
-	// Optional documentation for humans and AI agents. Use this to explain legal
-	// assumptions, simplifications, or why the row exists.
+	// Description corresponds to the JSON schema field "description".
 	Description *string `json:"description,omitempty,omitzero" yaml:"description,omitempty" mapstructure:"description,omitempty"`
-
-	// Whether this row is active. Omitted means true.
-	Enabled bool `json:"enabled,omitempty,omitzero" yaml:"enabled,omitempty" mapstructure:"enabled,omitempty"`
 
 	// Name corresponds to the JSON schema field "name".
 	Name NonEmptyName `json:"name" yaml:"name" mapstructure:"name"`
 }
 
-// The calculation used for this row. Exactly one shape is selected by the 'type'
-// field. Fixed rows require an amount and a frequency. Percentage rows require a
-// basis and a rate. Below-cap and above-cap percentage rows additionally require a
-// cap amount.
-type RowBaseCommonCalculation map[string]interface{}
-
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *RowBaseCommon) UnmarshalJSON(value []byte) error {
+func (j *RowCommon) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["calculation"]; raw != nil && !ok {
-		return fmt.Errorf("field calculation in RowBaseCommon: required")
+		return fmt.Errorf("field calculation in RowCommon: required")
 	}
 	if _, ok := raw["name"]; raw != nil && !ok {
-		return fmt.Errorf("field name in RowBaseCommon: required")
+		return fmt.Errorf("field name in RowCommon: required")
 	}
-	type Plain RowBaseCommon
+	type Plain RowCommon
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
@@ -1352,37 +1262,7 @@ func (j *RowBaseCommon) UnmarshalJSON(value []byte) error {
 	if plain.Description != nil && utf8.RuneCountInString(string(*plain.Description)) > 2000 {
 		return fmt.Errorf("field %s length: must be <= %d", "description", 2000)
 	}
-	if v, ok := raw["enabled"]; !ok || v == nil {
-		plain.Enabled = true
-	}
-	*j = RowBaseCommon(plain)
-	return nil
-}
-
-// The gross salary row itself. This is a pass-through row whose amount is the
-// configured or optimized gross salary. It is mainly used in company-side expense
-// groups because gross salary reduces company profit. It should normally not be
-// used inside grossSalaryExpenses, where only deductions from gross salary belong.
-type SalaryCalculation struct {
-	// Type corresponds to the JSON schema field "type".
-	Type interface{} `json:"type" yaml:"type" mapstructure:"type"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *SalaryCalculation) UnmarshalJSON(value []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(value, &raw); err != nil {
-		return err
-	}
-	if _, ok := raw["type"]; raw != nil && !ok {
-		return fmt.Errorf("field type in SalaryCalculation: required")
-	}
-	type Plain SalaryCalculation
-	var plain Plain
-	if err := json.Unmarshal(value, &plain); err != nil {
-		return err
-	}
-	*j = SalaryCalculation(plain)
+	*j = RowCommon(plain)
 	return nil
 }
 
