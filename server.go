@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io/fs"
+	"math"
 	"net/http"
+	"strconv"
 )
 
 type ServerConfig struct {
@@ -51,7 +54,88 @@ func templateFuncs() template.FuncMap {
 			}
 			return template.HTML(fmt.Sprint(v))
 		},
+
+		"toEUR": func(amount any, currency string) float64 {
+			value, ok := number(amount)
+			if !ok {
+				return 0
+			}
+
+			switch currency {
+			case "EUR", "":
+				return value
+			case "RON":
+				return value * 0.19
+			case "USD":
+				return value * 0.86
+			case "GBP":
+				return value * 1.16
+			default:
+				// Unknown currency: do not silently invent a rate.
+				// Returning 0 makes the problem visible in the UI.
+				return 0
+			}
+		},
+
+		"eur": func(amount any, currency string) string {
+			value, ok := number(amount)
+			if !ok {
+				return ""
+			}
+
+			eur := value
+			switch currency {
+			case "EUR", "":
+			case "RON":
+				eur = value * 0.19
+			case "USD":
+				eur = value * 0.86
+			case "GBP":
+				eur = value * 1.16
+			default:
+				return fmt.Sprintf("unsupported currency %q", currency)
+			}
+
+			return formatEUR(eur)
+		}, "percent": func(v any) string {
+			value, ok := number(v)
+			if !ok {
+				return ""
+			}
+			return fmt.Sprintf("%.2f%%", value)
+		},
 	}
+}
+
+func number(v any) (float64, bool) {
+	switch x := v.(type) {
+	case int:
+		return float64(x), true
+	case int64:
+		return float64(x), true
+	case float64:
+		return x, true
+	case float32:
+		return float64(x), true
+	case json.Number:
+		f, err := x.Float64()
+		return f, err == nil
+	case string:
+		f, err := strconv.ParseFloat(x, 64)
+		return f, err == nil
+	default:
+		return 0, false
+	}
+}
+
+func formatEUR(v float64) string {
+	rounded := math.Round(v*100) / 100
+
+	if math.Abs(rounded-math.Round(rounded)) < 0.000001 {
+		return fmt.Sprintf("€%.0f", rounded)
+	}
+
+	return fmt.Sprintf("€%.2f", rounded)
 }
 
 func NewServer(cfg ServerConfig) (*Server, error) {
