@@ -179,18 +179,30 @@ func (s *Server) Routes() http.Handler {
 
 	mux.Handle("GET /static/", http.StripPrefix("/static/", s.staticFS))
 	mux.HandleFunc("/", s.index)
+	mux.HandleFunc("/expenses", s.expenses)
 
 	return mux
 }
 
 func (s *Server) index(w http.ResponseWriter, r *http.Request) {
 	data := map[string]any{
+		"AppName": s.settings.AppName,
+	}
+
+	// TODO: move this into NewServer and cache the parsed template
+	if err := s.templates.ExecuteTemplate(w, "index.html", data); err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) expenses(w http.ResponseWriter, r *http.Request) {
+	data := map[string]any{
 		"AppName":  s.settings.AppName,
 		"Expenses": s.Expenses,
 	}
 
 	// TODO: move this into NewServer and cache the parsed template
-	if err := s.templates.ExecuteTemplate(w, "index.html", data); err != nil {
+	if err := s.templates.ExecuteTemplate(w, "expenses.html", data); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
